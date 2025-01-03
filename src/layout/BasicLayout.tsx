@@ -33,7 +33,7 @@ export default function BasicLayout() {
                     onClick={onClick}
                 />
             </Header>
-            <Content style={{ padding: 20 }}>
+            <Content style={{ padding: 24 }}>
                 <Outlet />
             </Content>
             <Footer></Footer>

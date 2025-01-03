@@ -15,7 +15,7 @@ export default function CaseListOptions() {
             <h4>sort by</h4>
             <Select
                 showSearch
-                placeholder="Select a person"
+                placeholder="Select a status"
                 optionFilterProp="label"
                 onChange={() => { }}
                 onSearch={() => { }}

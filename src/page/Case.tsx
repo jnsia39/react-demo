@@ -4,7 +4,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 
 const caseDetail = {
     title: "CSE-23-0025",
-    description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia quidem in optio ab quam neque quia perferendis similique labore cum vel exercitationem, recusandae deleniti eum cupiditate voluptas. Quos, atque molestias!",
+    description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia quidem in optio ab quam neque quia perferendis",
     createdAt: "2024-12-26 01:43:30 +0000",
     type: "CSAM"
 }
@@ -16,7 +16,7 @@ const items: TabsProps['items'] = [
     },
     {
         key: 'Details',
-        label: 'Details',
+        label: 'Members',
     },
     {
         key: 'Reports',
@@ -53,9 +53,7 @@ export default function Case() {
                     </Flex>
                 </Flex>
                 <Flex gap={16} align='center'>
-                    <div>
-                        Open In
-                    </div>
+                    <div>Open In</div>
                     <Flex gap={16}>
                         <Image width={36} src="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg" />
                         <Image width={36} src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" />

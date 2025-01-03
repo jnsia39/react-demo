@@ -1,39 +1,40 @@
-import { Avatar, Col, Flex, List, Progress, Row, Tag } from "antd";
-import CaseTimeLine from "../../components/case/CaseTimeLine";
+import { Avatar, Col, Flex, List, Progress, Row, Tag } from 'antd';
+import CaseTimeLine from '../../components/case/CaseTimeLine';
 
 const caseDetail = {
-  title: "CSE-23-0025",
-  description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia quidem in optio ab quam neque quia perferendis similique labore cum vel exercitationem, recusandae deleniti eum cupiditate voluptas. Quos, atque molestias!",
-  createdAt: "2024-12-26 01:43:30 +0000",
-  type: "CSAM"
-}
+  title: 'CSE-23-0025',
+  description:
+    'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia quidem in optio ab quam neque quia perferendis similique labore cum vel exercitationem, recusandae deleniti eum cupiditate voluptas. Quos, atque molestias!',
+  createdAt: '2024-12-26 01:43:30 +0000',
+  type: 'CSAM',
+};
 
 const members = [
   {
-      title: 'Ant Design Title 1',
+    title: 'Alexander Benjamin',
   },
   {
-      title: 'Ant Design Title 2',
+    title: 'Christopher Michael',
   },
   {
-      title: 'Ant Design Title 3',
+    title: 'Elizabeth Katherine',
   },
   {
-      title: 'Ant Design Title 4',
+    title: 'Isabella Victoria',
   },
 ];
 
 const statuses = [
-  { date: "2023-10-11 11:36 +0000", status: "In Progress" },
-  { date: "2023-10-12 09:20 +0000", status: "Completed" },
-  { date: "2023-10-13 14:45 +0000", status: "Pending Review" },
-  { date: "2023-10-14 08:15 +0000", status: "In Progress" },
-  { date: "2023-10-15 10:00 +0000", status: "On Hold" },
+  { date: '2023-10-11 11:36 +0000', status: 'In Progress' },
+  { date: '2023-10-12 09:20 +0000', status: 'Completed' },
+  { date: '2023-10-13 14:45 +0000', status: 'Pending Review' },
+  { date: '2023-10-14 08:15 +0000', status: 'In Progress' },
+  { date: '2023-10-15 10:00 +0000', status: 'On Hold' },
 ];
 
 export default function CaseStatus() {
   return (
-    <>
+    <Flex vertical gap={40}>
       <Row gutter={[16, 16]}>
         <Col span={8}>
           <h3 style={{ color: 'gray' }}>STATUS</h3>
@@ -48,7 +49,7 @@ export default function CaseStatus() {
           <h2>Evidence sources</h2>
           <br />
           <Flex wrap>
-            <Flex gap={16} align='center'>
+            <Flex gap={16} align="center">
               <h4>CSE-23-0025-EVD-1</h4>
               <p>Apple Iphone X</p>
               <Tag color="processing">processing</Tag>
@@ -57,7 +58,9 @@ export default function CaseStatus() {
           </Flex>
         </Col>
         <Col span={8}>
-          <h2>Team <Tag>{members.length}</Tag></h2>
+          <h2>
+            Team <Tag>{members.length}</Tag>
+          </h2>
           <br />
           <List
             itemLayout="horizontal"
@@ -65,7 +68,11 @@ export default function CaseStatus() {
             renderItem={(item, index) => (
               <List.Item>
                 <List.Item.Meta
-                  avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`} />}
+                  avatar={
+                    <Avatar
+                      src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`}
+                    />
+                  }
                   title={<a href="https://ant.design">{item.title}</a>}
                 />
               </List.Item>
@@ -73,11 +80,9 @@ export default function CaseStatus() {
           />
         </Col>
       </Row>
-      <Flex style={{ backgroundColor: "white" }}>
-        <Flex vertical align='center' gap={8} wrap>
-          <CaseTimeLine statuses={statuses} />
-        </Flex>
+      <Flex style={{ backgroundColor: 'white' }} justify='center'>
+        <CaseTimeLine statuses={statuses} />
       </Flex>
-    </>
-  )
+    </Flex>
+  );
 }
