@@ -22,7 +22,6 @@ export default function RecentilyAccessedCard() {
                 loading={initLoading}
                 itemLayout="horizontal"
                 dataSource={list}
-                style={{ height: 240, overflowY: 'scroll' }}
                 renderItem={(item) => (
                     <List.Item>
                         <Skeleton title={false} loading={item.loading} active>

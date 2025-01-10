@@ -1,38 +1,41 @@
-import { Flex, Radio, RadioChangeEvent, Select } from 'antd'
-import { SizeType } from 'antd/es/config-provider/SizeContext';
-import Search from 'antd/es/transfer/search'
-import { useState } from 'react';
+import { Button, Flex, Select } from 'antd';
+import Search from 'antd/es/transfer/search';
 
 export default function CaseListOptions() {
-    const [size, setSize] = useState<SizeType>('middle');
-
-    const handleSizeChange = (e: RadioChangeEvent) => {
-        setSize(e.target.value);
-    };
-
-    return (
-        <Flex align='center' gap={8} wrap>
-            <h4>sort by</h4>
-            <Select
-                showSearch
-                placeholder="Select a status"
-                optionFilterProp="label"
-                onChange={() => { }}
-                onSearch={() => { }}
-                options={[
-                    {
-                        value: 'progress',
-                        label: 'progress',
-                    },
-                ]}
-            />
-            <Flex>
-                <Search placeholder="input search text" />
-            </Flex>
-            <Radio.Group value={size} onChange={handleSizeChange}>
-                <Radio.Button value="large">Large</Radio.Button>
-                <Radio.Button value="middle">Default</Radio.Button>
-            </Radio.Group>
-        </Flex>
-    )
+  return (
+    <Flex align="center" gap={16} wrap>
+      <p>Sort by</p>
+      <Select
+        showSearch
+        placeholder="Select a status"
+        optionFilterProp="label"
+        onChange={() => {}}
+        onSearch={() => {}}
+        options={[
+          {
+            value: 'progress',
+            label: 'progress',
+          },
+        ]}
+      />
+      <p>Case type</p>
+      <Select
+        showSearch
+        placeholder="Select a status"
+        optionFilterProp="label"
+        onChange={() => {}}
+        onSearch={() => {}}
+        options={[
+          {
+            value: 'progress',
+            label: 'progress',
+          },
+        ]}
+      />
+      <Flex gap={4}>
+        <Search placeholder="input search text" />
+        <Button type="primary">Search</Button>
+      </Flex>
+    </Flex>
+  );
 }

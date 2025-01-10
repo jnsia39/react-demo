@@ -1,6 +1,6 @@
-import { Col, Row } from "antd";
-import { Case } from "../../type/case";
-import CaseCard from "./CaseCard";
+import { Col, Row } from 'antd';
+import { Case } from '../../type/case';
+import CaseCard from './CaseCard';
 
 export default function CaseCardList({ cases }: { cases: Case[] }) {
   return (
