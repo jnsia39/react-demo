@@ -1,4 +1,4 @@
-import axiosInstance from '../../util/axiosInstance';
+import axiosInstance from '../../utils/axiosInstance';
 import { SignUpRequest } from './type';
 
 const url = '/user';
