@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 
 export default function UseState() {
-  const [count, setCount] = useState(0);
+  // lazy initialization 적용 X
+  const [count, setCount] = useState(ExpensiveCalculation());
+
+  // lazy initialization 적용 O
+  // const [count, setCount] = useState(() => ExpensiveCalculation());
 
   const resetCount = () => {
     setCount(0);
@@ -32,4 +36,17 @@ export default function UseState() {
       <button onClick={increaseCorrect}>올바른 숫자 세기</button>
     </>
   );
+}
+
+function ExpensiveCalculation() {
+  console.log('무거운 연산 실행 중...');
+  sleep(1000);
+  return 1000;
+}
+
+function sleep(ms: number) {
+  const start = Date.now() + ms;
+  while (Date.now() < start) {
+    console.log();
+  }
 }

@@ -1,42 +1,31 @@
+import Memo from '../components/Memo';
+import UseCallback from '../components/UseCallback';
 import UseContext from '../components/UseContext';
-import UseEffect from '../components/useEffect';
+import UseEffect from '../components/UseEffect';
 import UseImperativeHandler from '../components/UseImperativeHandler';
 import UseLayoutEffect from '../components/UseLayoutEffect';
+import UseMemo from '../components/UseMemo';
 import UseReducer from '../components/UseReducer';
 import UseRef from '../components/UseRef';
 import UseState from '../components/UseState';
+import UseFetch from '../components/UseFetch';
+import HigherOrderComponent from '../components/HigherOrderComponent';
 
 export default function Home() {
   return (
     <>
-      {/* <UseState /> */}
+      <UseState />
       {/* <UseReducer /> */}
       {/* <UseEffect /> */}
       {/* <UseLayoutEffect /> */}
       {/* <UseRef /> */}
       {/* <UseImperativeHandler /> */}
-      <UseContext />
+      {/* <UseContext /> */}
+      {/* <UseMemo /> */}
+      {/* <Memo /> */}
+      {/* <UseCallback /> */}
+      {/* <UseFetch /> */}
+      {/* <HigherOrderComponent /> */}
     </>
   );
 }
-
-// const [dimensions, setDimensions] = useState({ width: 200, height: 200 });
-
-// useEffect(() => {
-//   const resizeObserver = new ResizeObserver((entries) => {
-//     for (const entry of entries) {
-//       const { width, height } = entry.contentRect;
-//       setDimensions({ width, height });
-//     }
-//   });
-
-//   if (chartContainerRef.current) {
-//     resizeObserver.observe(chartContainerRef.current);
-//   }
-
-//   return () => {
-//     if (chartContainerRef.current) {
-//       resizeObserver.unobserve(chartContainerRef.current);
-//     }
-//   };
-// }, []);

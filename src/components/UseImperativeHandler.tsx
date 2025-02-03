@@ -1,26 +1,43 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useState,
+  ChangeEvent,
+} from 'react';
+
+interface InputHandle {
+  alert: () => void;
+}
+
+interface InputProps {
+  // parentRef: React.RefObject<InputHandle>;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}
 
 export default function UseImperativeHandler() {
-  const inputRef = useRef();
+  const inputRef = useRef<InputHandle>(null);
   const [text, setText] = useState('');
 
-  function handleClick(e) {
-    inputRef.current.alert();
+  function handleClick() {
+    inputRef.current?.alert();
   }
 
-  function handleChange(e) {
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
     setText(e.target.value);
   }
 
   return (
     <>
       <Input ref={inputRef} value={text} onChange={handleChange} />
-      <button onClick={handleClick}>focus</button>
+      {/* <Input parentRef={inputRef} value={text} onChange={handleChange} /> */}
+      <button onClick={handleClick}>click me!</button>
     </>
   );
 }
 
-const Input = forwardRef((props, ref) => {
+const Input = forwardRef<InputHandle, InputProps>((props, ref) => {
   useImperativeHandle(
     ref,
     () => ({
@@ -31,7 +48,23 @@ const Input = forwardRef((props, ref) => {
 
   return (
     <>
-      <input ref={ref} {...props} type="text" />
+      <input {...props} type="text" />
     </>
   );
 });
+
+// function Input({ parentRef, value }: InputProps) {
+//   useImperativeHandle(
+//     parentRef,
+//     () => ({
+//       alert: () => alert(value),
+//     }),
+//     [value]
+//   );
+
+//   return (
+//     <>
+//       <input value={value} type="text" />
+//     </>
+//   );
+// }

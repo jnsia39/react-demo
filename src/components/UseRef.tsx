@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-function usePrevious(value) {
-  const ref = useRef();
+function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T>();
 
   useEffect(() => {
     ref.current = value;
@@ -11,22 +11,33 @@ function usePrevious(value) {
 }
 
 export default function UseRef() {
-  const inputRef = useRef();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [count, setCount] = useState(0);
+  const previous = usePrevious(count);
 
-  console.log(inputRef.current);
+  const handleClick = (): void => {
+    inputRef.current?.focus();
+  };
 
-  function handleClick() {
-    inputRef.current.focus();
-  }
+  const handleClick2 = (): void => {
+    setCount((prev) => prev + 1);
+  };
 
   useEffect(() => {
-    console.log(inputRef.current);
-  }, [inputRef]);
+    if (inputRef.current) {
+      console.log('Input element:', inputRef.current.value);
+    }
+  }, []);
 
   return (
-    <>
-      <input ref={inputRef} type="text" />
+    <div>
+      <input ref={inputRef} type="text" placeholder="Enter text" />
       <button onClick={handleClick}>Focus the input</button>
-    </>
+      <button onClick={handleClick2}>count 증가</button>
+      <div>
+        <p>Current: {count}</p>
+        <p>Previous: {previous}</p>
+      </div>
+    </div>
   );
 }

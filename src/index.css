@@ -19,3 +19,25 @@
 .recharts-default-legend {
   font-size: 12px;
 }
+
+h1 {
+  padding: 16px;
+}
+
+p {
+  padding: 16px;
+}
+
+span {
+  padding: 16px;
+}
+
+input {
+  margin: 16px;
+  padding: 8px;
+}
+
+button {
+  margin: 16px;
+  padding: 8px;
+}

@@ -10,12 +10,13 @@ interface Action {
 }
 
 const initialState: State = {
-  count: 0,
+  count: 1,
 };
 
-function init(count: State): State {
+function init(state: State): State {
   // 복잡한 연산
-  return count;
+  state.count = 1;
+  return state;
 }
 
 function reducer(state: State, action: Action) {
@@ -25,25 +26,25 @@ function reducer(state: State, action: Action) {
     case 'down':
       return { count: state.count - 1 > 0 ? state.count - 1 : 0 };
     case 'reset':
-      return { count: action.payload?.count || 0 };
+      return { count: action.payload?.count || state.count };
     default:
       throw new Error(`Unexpected action type: ${action.type}`);
   }
 }
 
 export default function UseReducer() {
-  const [state, dispacher] = useReducer(reducer, initialState, init);
+  const [state, dispatcher] = useReducer(reducer, initialState, init);
 
   function handleUpButtonClick() {
-    dispacher({ type: 'up' });
+    dispatcher({ type: 'up' });
   }
 
   function handleDownButtonClick() {
-    dispacher({ type: 'down' });
+    dispatcher({ type: 'down' });
   }
 
   function handleResetButtonClick() {
-    dispacher({ type: 'reset', payload: { count: 0 } });
+    dispatcher({ type: 'reset', payload: { count: 1 } });
   }
 
   return (
