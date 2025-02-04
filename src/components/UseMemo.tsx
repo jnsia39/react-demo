@@ -5,15 +5,15 @@ export default function UseMemo() {
   const [value, setValue] = useState(10);
   const [, triggerRendering] = useState(0);
 
-  const fact = factorial(number);
-  // const fact = useMemo(() => factorial(number), [number]);
+  // const fact = factorial(number);
+  const fact = useMemo(() => factorial(number), [number]);
 
-  const MemoizationComponent = <ExpensiveComponent value={value} />;
+  // const MemoizationComponent = <ExpensiveComponent value={value} />;
 
-  // const MemoizationComponent = useMemo(
-  //   () => <ExpensiveComponent value={value} />,
-  //   [value]
-  // );
+  const MemoizationComponent = useMemo(
+    () => <ExpensiveComponent value={value} />,
+    [value]
+  );
 
   function handleClick() {
     triggerRendering((prev) => prev + 1);

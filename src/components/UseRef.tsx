@@ -27,7 +27,7 @@ export default function UseRef() {
     if (inputRef.current) {
       console.log('Input element:', inputRef.current.value);
     }
-  }, []);
+  }, [count]);
 
   return (
     <div>

@@ -14,13 +14,13 @@ export default function UseEffect() {
 
   useEffect(() => {
     console.log(`omission`);
-    // console.log(`effect ${count}`);
-    // window.addEventListener('click', increaseCount);
+    console.log(`effect ${count}`);
+    window.addEventListener('click', increaseCount);
 
     // clean up function
     return () => {
-      // console.log(`cleanup ${count}`);
-      // window.removeEventListener('click', increaseCount);
+      console.log(`cleanup ${count}`);
+      window.removeEventListener('click', increaseCount);
     };
   });
 

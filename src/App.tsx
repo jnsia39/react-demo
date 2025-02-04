@@ -18,37 +18,37 @@ export default function App() {
       <div>
         <nav>
           <Link to="/use-state" style={linkStyle}>
-            UseState
+            useState
           </Link>
           <Link to="/use-reducer" style={linkStyle}>
-            UseReducer
+            useReducer
           </Link>
           <Link to="/use-effect" style={linkStyle}>
-            UseEffect
+            useEffect
           </Link>
           <Link to="/use-layout-effect" style={linkStyle}>
-            UseLayoutEffect
+            useLayoutEffect
           </Link>
           <Link to="/use-ref" style={linkStyle}>
-            UseRef
+            useRef
           </Link>
           <Link to="/use-imperative-handler" style={linkStyle}>
-            UseImperativeHandler
+            useImperativeHandler
           </Link>
           <Link to="/use-context" style={linkStyle}>
-            UseContext
+            useContext
           </Link>
           <Link to="/use-memo" style={linkStyle}>
-            UseMemo
+            useMemo
           </Link>
           <Link to="/memo" style={linkStyle}>
-            Memo
+            memo
           </Link>
           <Link to="/use-callback" style={linkStyle}>
-            UseCallback
+            useCallback
           </Link>
           <Link to="/use-fetch" style={linkStyle}>
-            UseFetch
+            useFetch
           </Link>
           <Link to="/higher-order-component" style={linkStyle}>
             HigherOrderComponent

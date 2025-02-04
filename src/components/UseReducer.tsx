@@ -15,7 +15,8 @@ const initialState: State = {
 
 function init(state: State): State {
   // 복잡한 연산
-  state.count = 1;
+  console.log('init', state);
+  state.count = 1 + state.count;
   return state;
 }
 

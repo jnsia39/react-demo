@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 
 export default function UseState() {
+  // const [count, setCount] = useState(0);
+
   // lazy initialization 적용 X
-  const [count, setCount] = useState(ExpensiveCalculation());
+  // const [count, setCount] = useState(ExpensiveCalculation());
 
   // lazy initialization 적용 O
-  // const [count, setCount] = useState(() => ExpensiveCalculation());
+  const [count, setCount] = useState(() => ExpensiveCalculation());
 
   const resetCount = () => {
     setCount(0);
@@ -18,7 +20,7 @@ export default function UseState() {
   };
 
   const increaseCorrect = () => {
-    setCount((prev) => prev + 1);
+    setCount((preva) => preva + 1);
     setCount((prev) => prev + 1);
     setCount((prev) => prev + 1);
   };
@@ -31,7 +33,7 @@ export default function UseState() {
     <>
       <h1>useState Example</h1>
       <p>count: {count}</p>
-      <button onClick={resetCount}>초기 값과 동일한 값으로 변경</button>
+      <button onClick={resetCount}>0으로 값으로 변경</button>
       <button onClick={increaseWrong}>잘못된 숫자 세기</button>
       <button onClick={increaseCorrect}>올바른 숫자 세기</button>
     </>

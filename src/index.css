@@ -4,38 +4,9 @@
   box-sizing: border-box;
 }
 
-.truncate-text {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.sub-text {
-  color: #d0d0d0;
-}
-
-.recharts-default-legend {
-  font-size: 12px;
-}
-
-Link {
-  text-decoration: 'none';
-  color: 'inherit';
-  display: 'block';
-  padding: '10px 20px';
-  background-color: '#007bff';
-  border: 'none';
-  border-radius: '5px';
-  text-align: 'center';
-  cursor: 'pointer';
-}
-
 nav {
   display: flex;
   flex-wrap: wrap;
-  /* justify-content: center; */
 }
 
 h1 {
