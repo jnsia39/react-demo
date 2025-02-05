@@ -1,15 +1,14 @@
 import { Route, Link, BrowserRouter, Routes } from 'react-router-dom';
-import UseState from './components/UseState';
-import UseReducer from './components/UseReducer';
-import UseEffect from './components/UseEffect';
-import UseLayoutEffect from './components/UseLayoutEffect';
-import UseRef from './components/UseRef';
-import UseImperativeHandler from './components/UseImperativeHandler';
-import UseContext from './components/UseContext';
-import UseMemo from './components/UseMemo';
-import Memo from './components/Memo';
-import UseCallback from './components/UseCallback';
-import UseFetch from './components/UseFetch';
+import UseState from './components/react-hooks/UseState';
+import UseReducer from './components/react-hooks/UseReducer';
+import UseEffect from './components/react-hooks/UseEffect';
+import UseLayoutEffect from './components/react-hooks/UseLayoutEffect';
+import UseRef from './components/react-hooks/UseRef';
+import UseContext from './components/react-hooks/UseContext';
+import UseMemo from './components/react-hooks/UseMemo';
+import Memo from './components/react-hooks/Memo';
+import UseCallback from './components/react-hooks/UseCallback';
+import UseFetch from './components/react-hooks/UseFetch';
 import HigherOrderComponent from './components/HigherOrderComponent';
 
 export default function App() {
@@ -31,9 +30,6 @@ export default function App() {
           </Link>
           <Link to="/use-ref" style={linkStyle}>
             useRef
-          </Link>
-          <Link to="/use-imperative-handler" style={linkStyle}>
-            useImperativeHandler
           </Link>
           <Link to="/use-context" style={linkStyle}>
             useContext
@@ -66,10 +62,6 @@ export default function App() {
           <Route path="/use-effect" element={<UseEffect />} />
           <Route path="/use-layout-effect" element={<UseLayoutEffect />} />
           <Route path="/use-ref" element={<UseRef />} />
-          <Route
-            path="/use-imperative-handler"
-            element={<UseImperativeHandler />}
-          />
           <Route path="/use-context" element={<UseContext />} />
           <Route path="/use-memo" element={<UseMemo />} />
           <Route path="/memo" element={<Memo />} />
