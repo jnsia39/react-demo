@@ -31,7 +31,7 @@ export default function UseState() {
 
   return (
     <>
-      <h1>useState Example</h1>
+      <h1 className="title">useState Example</h1>
       <p>count: {count}</p>
       <button onClick={resetCount}>0으로 값으로 변경</button>
       <button onClick={increaseWrong}>잘못된 숫자 세기</button>
@@ -42,7 +42,7 @@ export default function UseState() {
 
 function ExpensiveCalculation() {
   console.log('무거운 연산 실행 중...');
-  sleep(1000);
+  sleep(2000);
   return 1000;
 }
 

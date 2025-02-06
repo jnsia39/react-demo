@@ -18,7 +18,7 @@ export default function UseLayoutEffect() {
 
   return (
     <>
-      <h1>useLayoutEffect Example</h1>
+      <h1 className="title">useLayoutEffect Example</h1>
       <p>count: {count}</p>
       <button onClick={increaseCount}>숫자 세기</button>
     </>

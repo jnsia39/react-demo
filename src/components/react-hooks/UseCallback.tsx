@@ -28,7 +28,7 @@ export default function UseCallback() {
 
   return (
     <>
-      <h1>useCallback Example</h1>
+      <h1 className="title">useCallback Example</h1>
       <Component name="1" value={status1} onChange={toggle1} />
       <Component name="2" value={status2} onChange={toggle2} />
     </>

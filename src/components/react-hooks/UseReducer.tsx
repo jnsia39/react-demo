@@ -50,7 +50,7 @@ export default function UseReducer() {
 
   return (
     <>
-      <h1>useReducer Example</h1>
+      <h1 className="title">useReducer Example</h1>
       <p>count: {state.count}</p>
       <button onClick={handleUpButtonClick}>Up</button>
       <button onClick={handleDownButtonClick}>Down</button>

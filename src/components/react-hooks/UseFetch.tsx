@@ -10,7 +10,7 @@ export default function UseFetch() {
 
   return (
     <>
-      <h1>useFetch Example</h1>
+      <h1 className="title">useFetch Example</h1>
       <p>data: {data?.title}</p>
     </>
   );

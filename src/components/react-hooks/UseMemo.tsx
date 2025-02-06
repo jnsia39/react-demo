@@ -27,7 +27,7 @@ export default function UseMemo() {
 
   return (
     <>
-      <h1>useMemo Example</h1>
+      <h1 className="title">useMemo Example</h1>
       <p>
         Factorial of {number} is: {fact}
       </p>

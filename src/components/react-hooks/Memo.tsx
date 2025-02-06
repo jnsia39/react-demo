@@ -9,7 +9,7 @@ export default function Memo() {
 
   return (
     <>
-      <h1>memo Example</h1>
+      <h1 className="title">memo Example</h1>
       <ParentComponent count={count} />
       <button onClick={increaseCount}>숫자 세기</button>
     </>

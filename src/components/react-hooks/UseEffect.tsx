@@ -34,7 +34,7 @@ export default function UseEffect() {
 
   return (
     <>
-      <h1>useEffect Example</h1>
+      <h1 className="title">useEffect Example</h1>
       <p>count: {count}</p>
       <p>value: {value}</p>
       <p>화면을 클릭하여 숫자 세기</p>
