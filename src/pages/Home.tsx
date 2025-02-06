@@ -6,7 +6,7 @@ export default function Home() {
       <Link to="/react-hooks" style={linkStyle}>
         리액트 훅 사전
       </Link>
-      <Link to="/correct-main" style={linkStyle}>
+      <Link to="/optimization" style={linkStyle}>
         리액트 훅을 활용한 최적화 기법
       </Link>
       <Link to="/concurrent" style={linkStyle}>

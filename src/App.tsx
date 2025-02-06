@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Route, BrowserRouter, Routes } from 'react-router-dom';
 // import UseState from './components/react-hooks/UseState';
 // import UseReducer from './components/react-hooks/UseReducer';
@@ -14,12 +15,12 @@ import { Route, BrowserRouter, Routes } from 'react-router-dom';
 // import AutomaticBatching from './pages/AutomaticBatching';
 // import ReactHooksPage from './pages/ReactHooksPage';
 // import Home from './pages/Home';
-import { lazy, Suspense } from 'react';
 import ConcurrentPage from './pages/ConcurrentPage';
 import OldRenderingProblem from './components/concurrent-mode/OldRenderingProblem';
 import StartTransition from './components/concurrent-mode/StartTransition';
 import UseTransition from './components/concurrent-mode/UseTransition';
 import UseDeffredValue from './components/concurrent-mode/UseDeffredValue';
+import OptimizationPage from './pages/OptimizationPage';
 
 const Home = lazy(() => import('./pages/Home'));
 const ReactHooksPage = lazy(() => import('./pages/ReactHooksPage'));
@@ -48,15 +49,14 @@ export default function App() {
         <Suspense fallback={<div>loading...</div>}>
           <Routes>
             <Route path="/" element={<Home />} />
+
             <Route path="/react-hooks" element={<ReactHooksPage />}>
               <Route
                 path="use-state"
                 element={
-                  <>
-                    <Suspense fallback={<div>loading UseState...</div>}>
-                      <UseState />
-                    </Suspense>
-                  </>
+                  <Suspense fallback={<div>loading UseState...</div>}>
+                    <UseState />
+                  </Suspense>
                 }
               />
               <Route path="use-reducer" element={<UseReducer />} />
@@ -69,6 +69,12 @@ export default function App() {
               <Route path="use-callback" element={<UseCallback />} />
               <Route path="use-fetch" element={<UseFetch />} />
             </Route>
+
+            <Route path="/optimization" element={<OptimizationPage />}>
+              <Route path="wrong-main" element={<WrongMain />} />
+              <Route path="correct-main" element={<CorrectMain />} />
+            </Route>
+
             <Route path="/concurrent" element={<ConcurrentPage />}>
               <Route
                 path="old-rendering-problem"
@@ -79,8 +85,6 @@ export default function App() {
               <Route path="use-deffered-value" element={<UseDeffredValue />} />
               <Route path="auto-batching" element={<AutomaticBatching />} />
             </Route>
-            <Route path="/wrong-main" element={<WrongMain />} />
-            <Route path="/correct-main" element={<CorrectMain />} />
           </Routes>
         </Suspense>
       </div>

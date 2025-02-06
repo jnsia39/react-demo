@@ -43,7 +43,6 @@ function WrongMain() {
   };
 
   const makePaginatedUsersData = (data: User[]) => {
-    // 페이지네이션
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
 
