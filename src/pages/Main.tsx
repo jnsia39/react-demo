@@ -6,7 +6,7 @@ import Pagination from '../components/optimization/Pagination';
 import { User } from '../types/User';
 import axios from 'axios';
 
-const ITEMS_PER_PAGE = 12;
+const itemsPerPage = 12;
 const apiUrl = 'https://randomuser.me/api/'
 const params = {
   results: 500,
@@ -14,43 +14,58 @@ const params = {
   nat: 'US',
 };
 
-function WrongMain() {
-  const [originalUserData, setOriginalUserData] = useState<User[]>([]);
-  const [userData, setUserData] = useState<User[]>([]);
-  const [paginatedUsers, setPaginatedUsers] = useState<User[]>([]);
+function Main() {
+  const [originalUsers, setOriginalUsers] = useState([])
+  const [filteredUsers, setFilteredUsers] = useState([])
+  const [paginatedUsers, setPaginatedUsers] = useState([])
   const [sortOption, setSortOption] = useState('default');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<unknown>();
-  
-  useEffect(() => {
-    axios
-      .get(apiUrl, { params })
-      .then((response: { data: { results: User[] } }) => {
-        const results = response.data.results;
-        setOriginalUserData(results);
-        setLoading(false);
-      })
-      .catch((error: unknown) => {
-        setError(error);
-      });
-  }, []);
+  const [error, setError] = useState<unknown>(null);
 
+  useEffect(() => {
+    axios.get(apiUrl, {params})
+    .then((res) => {
+      const results = res.data.results
+      setOriginalUsers(results)
+      setLoading(false)
+    })
+    .catch((error: unknown) => {
+      setError(error)
+    })
+  }, [apiUrl])
+
+  const updatePaginatedUsers = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+
+    setPaginatedUsers(filteredUsers.slice(startIndex, endIndex));
+  };
+
+  useEffect(() => {
+    updatePaginatedUsers()
+  }, [filteredUsers, currentPage])
 
   const filterByUsername = () => {
-    const newUserData = originalUserData.filter((user) => {
+    const newUserData = originalUsers.filter((user: User) => {
       const fullUsername = `${user.name.first} ${user.name.last}`.toLowerCase();
       return fullUsername.includes(searchQuery.toLowerCase());
     });
 
-    setUserData(newUserData);
+    setFilteredUsers(newUserData);
   };
 
-  const sortByUsername = () => {
-    if (sortOption === 'default') return userData;
+  useEffect(() => {
+    filterByUsername()
+  }, [searchQuery, originalUsers])
 
-    userData.sort((a: User, b: User) => {
+  const sortByUsername = () => {
+    if (sortOption === 'default') return filteredUsers;
+
+    const newFilteredUsers = JSON.parse(JSON.stringify(filteredUsers));
+
+    newFilteredUsers.sort((a: User, b: User) => {
       const nameA = (a.name.first + ' ' + a.name.last).toLowerCase();
       const nameB = (b.name.first + ' ' + b.name.last).toLowerCase();
 
@@ -59,24 +74,12 @@ function WrongMain() {
         : nameB.localeCompare(nameA);
     });
 
-    setUserData([...userData]);
+    setFilteredUsers(newFilteredUsers);
   };
 
-  const updatePaginatedUsers = () => {
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-  
-      setPaginatedUsers(userData.slice(startIndex, endIndex));
-    };
-
   useEffect(() => {
-    filterByUsername();
-    sortByUsername();
-  }, [searchQuery, sortOption, currentPage, originalUserData]);
-
-  useEffect(() => {
-    updatePaginatedUsers();
-  }, [userData])
+    sortByUsername()
+  }, [sortOption])
 
   useEffect(() => {
     console.log('MainPage Rendering');
@@ -105,7 +108,7 @@ function WrongMain() {
           <UserList users={paginatedUsers} loading={loading} />
           <Pagination
             currentPage={currentPage}
-            totalPages={Math.ceil(userData.length / ITEMS_PER_PAGE)}
+            totalPages={Math.ceil(originalUsers.length / itemsPerPage)}
             setCurrentPage={setCurrentPage}
           />
         </div>
@@ -114,4 +117,4 @@ function WrongMain() {
   );
 }
 
-export default WrongMain;
+export default Main;

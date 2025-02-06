@@ -4,6 +4,9 @@ export default function OptimizationPage() {
   return (
     <>
       <nav>
+      <Link to="main" style={linkStyle}>
+          요구사항 구현 코드
+        </Link>
         <Link to="wrong-main" style={linkStyle}>
           최적화 되지 않는 코드
         </Link>

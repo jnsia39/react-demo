@@ -21,6 +21,7 @@ import StartTransition from './components/concurrent-mode/StartTransition';
 import UseTransition from './components/concurrent-mode/UseTransition';
 import UseDeffredValue from './components/concurrent-mode/UseDeffredValue';
 import OptimizationPage from './pages/OptimizationPage';
+import Main from './pages/Main';
 
 const Home = lazy(() => import('./pages/Home'));
 const ReactHooksPage = lazy(() => import('./pages/ReactHooksPage'));
@@ -72,6 +73,7 @@ export default function App() {
 
             <Route path="/optimization" element={<OptimizationPage />}>
               <Route path="wrong-main" element={<WrongMain />} />
+              <Route path="main" element={<Main />} />
               <Route path="correct-main" element={<CorrectMain />} />
             </Route>
 
