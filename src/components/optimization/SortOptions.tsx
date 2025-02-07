@@ -1,16 +1,16 @@
 const SortOptions = ({
   sortOption,
-  setSortOption,
+  handleSortOption,
 }: {
   sortOption: string;
-  setSortOption: React.Dispatch<React.SetStateAction<string>>;
+  handleSortOption: (option: string) => void;
 }) => {
   // console.log('SortOptions Rendering');
 
   return (
     <select
       value={sortOption}
-      onChange={(e) => setSortOption(e.target.value)}
+      onChange={(e) => handleSortOption(e.target.value)}
       className="p-2 border rounded bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
     >
       <option

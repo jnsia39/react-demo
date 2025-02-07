@@ -4,7 +4,7 @@ import SortOptions from '../components/optimization/SortOptions';
 // import UserList from '../components/optimization/UserList';
 import Pagination from '../components/optimization/Pagination';
 import { User } from '../types/User';
-import { useFetch } from '../hooks/useFetch';
+import { useFetch } from '../hooks/useFetch copy';
 import SkeletonUserList from '../skeletons/SkeletonUserList';
 
 const UserList = lazy(() => import('../components/optimization/UserList'));
@@ -65,6 +65,10 @@ function CorrectMain() {
     console.log('MainPage Rendering');
   });
 
+  const handleSortOption = (option: string) => {
+    setSortOption(option);
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-2 py-4">
       <div className="text-4xl font-bold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r to-blue-600 from-gray-300">
@@ -76,7 +80,10 @@ function CorrectMain() {
           setSearchQuery={setSearchQuery}
           setCurrentPage={setCurrentPage}
         />
-        <SortOptions sortOption={sortOption} setSortOption={setSortOption} />
+        <SortOptions
+          sortOption={sortOption}
+          handleSortOption={handleSortOption}
+        />
       </div>
       {error ? (
         <div className="bg-red-100 text-red-700 border border-red-300 rounded p-4 mx-auto max-w-md text-center">

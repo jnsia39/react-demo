@@ -7,7 +7,7 @@ import { User } from '../types/User';
 import axios from 'axios';
 
 const ITEMS_PER_PAGE = 12;
-const apiUrl = 'https://randomuser.me/api/'
+const apiUrl = 'https://randomuser.me/api/';
 const params = {
   results: 500,
   inc: 'name, email, phone, cell, picture',
@@ -23,7 +23,7 @@ function WrongMain() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown>();
-  
+
   useEffect(() => {
     axios
       .get(apiUrl, { params })
@@ -36,7 +36,6 @@ function WrongMain() {
         setError(error);
       });
   }, []);
-
 
   const filterByUsername = () => {
     const newUserData = originalUserData.filter((user) => {
@@ -63,11 +62,11 @@ function WrongMain() {
   };
 
   const updatePaginatedUsers = () => {
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-  
-      setPaginatedUsers(userData.slice(startIndex, endIndex));
-    };
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+
+    setPaginatedUsers(userData.slice(startIndex, endIndex));
+  };
 
   useEffect(() => {
     filterByUsername();
@@ -76,11 +75,15 @@ function WrongMain() {
 
   useEffect(() => {
     updatePaginatedUsers();
-  }, [userData])
+  }, [userData]);
 
   useEffect(() => {
     console.log('MainPage Rendering');
   });
+
+  const handleSortOption = (option: string) => {
+    setSortOption(option);
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-2 py-4">
@@ -93,7 +96,10 @@ function WrongMain() {
           setSearchQuery={setSearchQuery}
           setCurrentPage={setCurrentPage}
         />
-        <SortOptions sortOption={sortOption} setSortOption={setSortOption} />
+        <SortOptions
+          sortOption={sortOption}
+          handleSortOption={handleSortOption}
+        />
       </div>
       {error ? (
         <div className="bg-red-100 text-red-700 border border-red-300 rounded p-4 mx-auto max-w-md text-center">
