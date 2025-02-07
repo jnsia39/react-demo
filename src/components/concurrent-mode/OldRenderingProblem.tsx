@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { startTransition, useState } from 'react';
 
 function getRandomInt(min: number, max: number) {
   min = Math.ceil(min);
@@ -23,7 +23,7 @@ export default function OldRenderingProblem() {
       }))
     );
 
-  // debounce 활용용
+  // debounce 활용
   // const updateArray = debounce(() => {
   //   setArray(
   //     array.map(() => ({

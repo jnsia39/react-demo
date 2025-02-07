@@ -42,9 +42,24 @@ export default function UseState() {
 
 function ExpensiveCalculation() {
   console.log('무거운 연산 실행 중...');
-  sleep(2000);
+  sleep(1000);
   return 1000;
 }
+
+// let resolved = false;
+
+// function ExpensiveCalculation() {
+//   console.log('무거운 연산 실행 중...');
+
+//   if (!resolved) {
+//     throw new Promise((resolve) => {
+//       setTimeout(() => {
+//         resolved = true;
+//         resolve(1000);
+//       }, 2000);
+//     });
+//   }
+// }
 
 function sleep(ms: number) {
   const start = Date.now() + ms;

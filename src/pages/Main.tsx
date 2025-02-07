@@ -4,7 +4,6 @@ import SortOptions from '../components/optimization/SortOptions';
 import UserList from '../components/optimization/UserList';
 import Pagination from '../components/optimization/Pagination';
 import { User } from '../types/User';
-import { useFetch } from '../hooks/useFetch copy';
 
 const itemsPerPage = 12;
 const apiUrl = 'https://randomuser.me/api/';
@@ -19,13 +18,13 @@ function Main() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // useEffect(() => {
-  //   console.log('MainPage Rendering');
-  // });
-
   const handleSortOption = (option: string) => {
     setSortOption(option);
   };
+
+  // useEffect(() => {
+  //   console.log('MainPage Rendering');
+  // });
 
   return (
     <div className="max-w-4xl mx-auto px-2 py-4">

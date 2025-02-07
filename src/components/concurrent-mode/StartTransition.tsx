@@ -17,13 +17,13 @@ export default function StartTransition() {
   };
 
   const updateArray = () =>
-    // startTransition(() =>
-    setArray(
-      array.map(() => ({
-        text: 'component' + getRandomInt(0, 100),
-        key: getRandomInt(0, 100),
-      }))
-      //   )
+    startTransition(() =>
+      setArray(
+        array.map(() => ({
+          text: 'component' + getRandomInt(0, 100),
+          key: getRandomInt(0, 100),
+        }))
+      )
     );
 
   return (
