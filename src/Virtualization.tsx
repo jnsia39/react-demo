@@ -101,6 +101,7 @@ export default function Virtualization() {
                       <img
                         src={`${BASE_URL}/${item}`}
                         alt={item}
+                        loading="lazy"
                         className="w-full h-40 object-cover rounded"
                       />
                       <h3
