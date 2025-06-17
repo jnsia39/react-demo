@@ -3,7 +3,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import axios from 'axios';
 import { useRef, useEffect, useState, useMemo } from 'react';
 
-const BASE_URL = 'http://localhost:15460';
+const BASE_URL = 'http://172.16.7.76:15460';
 const API_URL = `${BASE_URL}/api/v1/files/image/list`;
 const PAGE_SIZE = 80;
 
@@ -196,7 +196,13 @@ export default function Virtualization() {
                       )}
                     </div>
                   ) : (
-                    <div className={`grid grid-cols-${imagesPerRow} gap-4`}>
+                    <div
+                      className={
+                        imagesPerRow === 16
+                          ? `grid grid-cols-16 gap-4`
+                          : `grid grid-cols-8 gap-4`
+                      }
+                    >
                       {rowItems.map((item, index) =>
                         item ? (
                           <div
