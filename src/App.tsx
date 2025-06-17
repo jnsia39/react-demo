@@ -1,13 +1,14 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Virtualization from './Virtualization';
 import { useState } from 'react';
+import Playback from './Playback';
 
 const queryClient = new QueryClient();
 
 type Page = 'Virtualization' | 'Playback';
 
 export default function App() {
-  const [page, setPage] = useState<Page>('Virtualization');
+  const [page, setPage] = useState<Page>('Playback');
 
   const changePage = () => {
     switch (page) {
@@ -27,7 +28,7 @@ export default function App() {
           {page}
         </h1>
         {page === 'Virtualization' && <Virtualization />}
-        {page === 'Playback' && <Virtualization />}
+        {page === 'Playback' && <Playback />}
       </div>
     </QueryClientProvider>
   );
