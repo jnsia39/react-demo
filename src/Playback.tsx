@@ -28,15 +28,23 @@ export default function Playback() {
   const [duration, setDuration] = useState(0);
 
   const start = async () => {
-    await axios.post('http://localhost:15460/api/v1/files/video');
+    const result = await axios.post(
+      'http://localhost:15460/api/v1/files/video'
+    );
+
+    console.log('Video started:', result);
 
     const player = playerRef.current;
 
     player.play();
   };
 
-  const stop = () => {
-    axios.post('http://localhost:15460/api/v1/files/video/stop');
+  const stop = async () => {
+    const result = await axios.post(
+      'http://localhost:15460/api/v1/files/video/stop'
+    );
+
+    console.log('Video stopped:', result);
   };
 
   useEffect(() => {
@@ -87,6 +95,18 @@ export default function Playback() {
         case 'ArrowLeft':
           player.currentTime(player.currentTime() - 5);
           break;
+        case 'b':
+        case 'B': {
+          const fps = 30;
+          player.currentTime(player.currentTime() - 1 / fps);
+          break;
+        }
+        case 'n':
+        case 'N': {
+          const fps = 30;
+          player.currentTime(player.currentTime() + 1 / fps);
+          break;
+        }
         case 'ArrowUp':
           player.volume(Math.min(player.volume() + 0.1, 1));
           break;
@@ -392,6 +412,9 @@ export default function Playback() {
               </span>
               <span>
                 <b>+/–</b>: 속도
+              </span>
+              <span>
+                <b>B/N</b>: 1프레임 뒤로/앞으로 (30fps 기준)
               </span>
               <span>
                 <b>M</b>: 음소거

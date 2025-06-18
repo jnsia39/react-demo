@@ -8,7 +8,7 @@ const queryClient = new QueryClient();
 type Page = 'Virtualization' | 'Playback';
 
 export default function App() {
-  const [page, setPage] = useState<Page>('Playback');
+  const [page, setPage] = useState<Page>('Virtualization');
 
   const changePage = () => {
     switch (page) {

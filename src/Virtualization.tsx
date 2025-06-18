@@ -33,8 +33,8 @@ export default function Virtualization() {
   const rowCount = Math.ceil(totalElements / imagesPerRow) || 1;
 
   const estimateSize = useMemo(() => {
-    if (imagesPerRow === 16) return 80;
-    if (imagesPerRow === 8) return 148;
+    if (imagesPerRow === 16) return 72;
+    if (imagesPerRow === 8) return 140;
     return 80;
   }, [imagesPerRow]);
 
@@ -101,19 +101,8 @@ export default function Virtualization() {
   function generateRandomMeta(image: string) {
     return {
       name: image,
-      filePath: `/data/com.google.android.apps.books/files/accounts/gmdsystem2012@gmail.com/volumes/${image}`,
-      hash:
-        'MD5 : ' +
-        Math.random().toString(36) +
-        '\n' +
-        'SHA256 : ' +
-        Math.random().toString(36),
-      size: Math.floor(Math.random() * 5000) + 100 + ' KB',
       type: 'PNG',
-      uploadedAt: new Date(Date.now() - Math.random() * 1e10).toLocaleString(),
-      resolution: `${Math.floor(Math.random() * 1000) + 500}x${
-        Math.floor(Math.random() * 1000) + 500
-      }`,
+      resolution: `720x720`,
     };
   }
 
@@ -121,8 +110,8 @@ export default function Virtualization() {
   return (
     <div className="flex flex-col">
       {/* 상단 총 개수 및 행 개수 조절 UI */}
-      <div className="flex items-center justify-between">
-        <div className="text-lg font-semibold text-gray-700">
+      <div className="flex items-center justify-between mb-2">
+        <div className="font-semibold text-gray-700">
           총 개수: {totalElements.toLocaleString()}개
         </div>
         <div className="flex items-center">
@@ -165,7 +154,7 @@ export default function Virtualization() {
               return (
                 <div
                   key={virtualRow.key}
-                  className="absolute left-0 right-0 px-4"
+                  className="absolute left-0 right-0"
                   style={{
                     top: 0,
                     height: virtualRow.size,
@@ -173,12 +162,12 @@ export default function Virtualization() {
                   }}
                 >
                   {isEmpty ? (
-                    <div className={`grid grid-cols-${imagesPerRow} gap-4`}>
+                    <div className={`grid grid-cols-${imagesPerRow} gap-2`}>
                       {Array.from({ length: imagesPerRow }).map(
                         (item, index) => (
                           <div
                             key={startIndex + index}
-                            className={`flex flex-col items-center border rounded p-2 cursor-pointer ${
+                            className={`flex flex-col items-center border rounded cursor-pointer ${
                               selectedImage === item
                                 ? 'ring-2 ring-blue-500'
                                 : ''
@@ -199,15 +188,15 @@ export default function Virtualization() {
                     <div
                       className={
                         imagesPerRow === 16
-                          ? `grid grid-cols-16 gap-4`
-                          : `grid grid-cols-8 gap-4`
+                          ? `grid grid-cols-16 gap-2`
+                          : `grid grid-cols-8 gap-2`
                       }
                     >
                       {rowItems.map((item, index) =>
                         item ? (
                           <div
                             key={startIndex + index}
-                            className={`flex flex-col items-center border rounded p-2 cursor-pointer ${
+                            className={`flex flex-col items-center border rounded cursor-pointer ${
                               selectedImage === item
                                 ? 'ring-2 ring-blue-500'
                                 : ''
@@ -266,15 +255,11 @@ export default function Virtualization() {
                   {imageMeta.filePath}
                 </span>
               </div>
-              <h2 className="text-lg font-bold mb-3 border-b pb-1"></h2>
               <ul className="text-sm space-y-2">
                 {Object.entries(imageMeta)
                   .filter(([k]) => k !== 'filePath')
                   .map(([k, v]) => (
-                    <li
-                      key={k}
-                      className="flex justify-between border-b pb-1 last:border-b-0 last:pb-0"
-                    >
+                    <li key={k} className="flex justify-between border-b py-1">
                       <span className="font-semibold text-gray-700 capitalize">
                         {k}
                       </span>
