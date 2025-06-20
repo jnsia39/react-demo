@@ -1,95 +1,147 @@
-import { useRef, useState } from 'react';
-import VideoPlayer from '@pages/playback/components/VideoPlayer';
+import { useState } from 'react';
+import VideoPlayer, {
+  VideoPlayerState,
+} from '@widgets/video-player/VideoPlayer';
+import { useNavigate } from 'react-router-dom';
+import { axiosInstance } from '@shared/lib/axios/axios';
+
+const BASE_URL = import.meta.env.VITE_API_URL;
+const PATH = `${BASE_URL}/stream.m3u8`;
+
+const API_URL = '/api/v1/files/video/frame';
 
 export default function ExtractFrame() {
-  const [frameNumber, setFrameNumber] = useState('');
-  const [videoTime, setVideoTime] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
-  const [loading, setLoading] = useState(false);
-  const videoPlayerRef = useRef<any>(null);
+  const [frameNumber, setFrameNumber] = useState('1');
+  const [videoTime, setVideoTime] = useState('00:00:00.000');
 
-  // 예시: 이미지 추출 API 호출 (실제 API에 맞게 수정 필요)
-  const handleExtract = async () => {
-    setLoading(true);
+  const [frameImageUrl, setFrameImageUrl] = useState('');
+  const [timeImageUrl, setTimeImageUrl] = useState('');
+
+  const [loadingFrame, setLoadingFrame] = useState(false);
+  const [loadingTime, setLoadingTime] = useState(false);
+
+  const navigate = useNavigate();
+
+  // 프레임 번호로 이미지 추출
+  const handleExtractFrame = async () => {
+    setLoadingFrame(true);
+    setFrameImageUrl(``);
     try {
-      // 실제로는 frameNumber, videoTime을 서버에 전달하여 이미지 추출
-      // 아래는 예시 URL (API에 맞게 수정)
-      const res = await fetch(
-        `/api/v1/extract-frame?frame=${frameNumber}&time=${videoTime}`
-      );
-      const data = await res.json();
-      setImageUrl(data.imageUrl); // 서버에서 반환하는 이미지 URL
+      const res = await axiosInstance.get(`${API_URL}?frame=${frameNumber}`);
+      setFrameImageUrl(`${BASE_URL}/${res.data}`);
+      console.log(`${BASE_URL}/${res.data}`);
     } catch (e) {
-      alert('이미지 추출 실패');
+      alert(e instanceof Error ? e.message : '프레임 이미지 추출 실패');
     } finally {
-      setLoading(false);
+      setLoadingFrame(false);
     }
   };
 
-  // blur 시 영상 시간 이동
-  const handleFrameBlur = () => {
-    // 프레임 번호를 시간(초)로 변환하는 로직 필요 (예: 30fps)
-    const fps = 30;
-    const frame = parseInt(frameNumber, 10);
-    if (!isNaN(frame) && videoPlayerRef.current) {
-      const sec = frame / fps;
-      videoPlayerRef.current.setCurrentTime?.(sec);
+  // 영상 시간으로 이미지 추출
+  const handleExtractTime = async () => {
+    setLoadingTime(true);
+    setTimeImageUrl(``);
+    try {
+      const res = await axiosInstance.get(`${API_URL}?time=${videoTime}`);
+      setTimeImageUrl(`${BASE_URL}/${res.data}`);
+      console.log(`${BASE_URL}/${res.data}`);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : '시간 이미지 추출 실패');
+    } finally {
+      setLoadingTime(false);
     }
   };
-  const handleTimeBlur = () => {
-    const sec = parseFloat(videoTime);
-    if (!isNaN(sec) && videoPlayerRef.current) {
-      videoPlayerRef.current.setCurrentTime?.(sec);
-    }
+
+  const handleChangeVideo = (state: VideoPlayerState) => {
+    setFrameNumber(Math.floor(state.currentTime * 30).toString());
+
+    console.log(
+      `현재 시간: ${state.currentTime}, 프레임 번호: ${Math.floor(
+        state.currentTime * 29.97
+      )}`
+    );
+    setVideoTime(
+      new Date(state.currentTime * 1000).toISOString().substring(11, 23)
+    );
   };
 
   return (
     <div className="flex min-h-screen justify-center items-center gap-4">
-      <div>
-        <VideoPlayer source="" />
+      <div className="bg-black rounded-lg p-4">
+        <VideoPlayer source={PATH} onChange={handleChangeVideo} />
       </div>
       <div className="flex gap-4 flex-col w-full max-w-3xl">
-        <div className="flex flex-col">
-          <label className="mb-1 text-sm font-medium">프레임 번호</label>
-          <input
-            type="number"
-            className="border rounded px-3 py-2"
-            value={frameNumber}
-            onChange={(e) => setFrameNumber(e.target.value)}
-            onBlur={handleFrameBlur}
-            placeholder="예: 123"
-          />
+        <div>
+          <button
+            className="px-4 py-1 border rounded hover:bg-gray-300 transition"
+            onClick={() => navigate('/')}
+            type="button"
+          >
+            뒤로가기
+          </button>
         </div>
-        <div className="flex flex-col">
-          <label className="mb-1 text-sm font-medium">영상 시간 (초)</label>
-          <input
-            type="number"
-            className="border rounded px-3 py-2"
-            value={videoTime}
-            onChange={(e) => setVideoTime(e.target.value)}
-            onBlur={handleTimeBlur}
-            placeholder="예: 12.34"
-          />
-        </div>
-        <button
-          className="px-6 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
-          onClick={handleExtract}
-          disabled={loading}
-        >
-          {loading ? '추출 중...' : '이미지 추출'}
-        </button>
-        <div className="w-full max-w-3xl min-h-[400px] flex items-center justify-center border rounded bg-gray-50 mt-4">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt="추출된 프레임"
-              className="max-w-full max-h-[400px] rounded"
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col">
+            <label className="mb-1 text-sm font-medium">프레임 번호</label>
+            <input
+              type="number"
+              className="border rounded px-3 py-2"
+              value={frameNumber}
+              onChange={(e) => setFrameNumber(e.target.value)}
+              placeholder="예: 123"
             />
-          ) : (
-            <span className="text-gray-400">
-              여기에 추출된 이미지가 표시됩니다
-            </span>
-          )}
+            <button
+              className="mt-2 px-6 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+              onClick={handleExtractFrame}
+              disabled={loadingFrame}
+            >
+              {loadingFrame ? '추출 중...' : '프레임 이미지 추출'}
+            </button>
+            <div className="w-full max-w-3xl min-h-[200px] flex items-center justify-center border rounded bg-gray-50 mt-2">
+              {frameImageUrl ? (
+                <img
+                  src={frameImageUrl}
+                  alt="프레임 추출 이미지"
+                  className="max-w-full max-h-[180px] rounded"
+                />
+              ) : (
+                <span className="text-gray-400">
+                  여기에 프레임 추출 이미지가 표시됩니다
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-col mt-4">
+            <label className="mb-1 text-sm font-medium">
+              영상 시간 (hh:mm:ss.ms)
+            </label>
+            <input
+              className="border rounded px-3 py-2"
+              value={videoTime}
+              onChange={(e) => setVideoTime(e.target.value)}
+              placeholder="예: 00:00:10.000"
+            />
+            <button
+              className="mt-2 px-6 py-2 bg-green-600 text-white rounded shadow hover:bg-green-700 transition"
+              onClick={handleExtractTime}
+              disabled={loadingTime}
+            >
+              {loadingTime ? '추출 중...' : '시간 이미지 추출'}
+            </button>
+            <div className="w-full max-w-3xl min-h-[200px] flex items-center justify-center border rounded bg-gray-50 mt-2">
+              {timeImageUrl ? (
+                <img
+                  src={timeImageUrl}
+                  alt="시간 추출 이미지"
+                  className="max-w-full max-h-[180px] rounded"
+                />
+              ) : (
+                <span className="text-gray-400">
+                  여기에 시간 추출 이미지가 표시됩니다
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

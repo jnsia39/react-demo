@@ -1,8 +1,7 @@
 import { axiosInstance } from '@shared/lib/axios/axios';
-import axios from 'axios';
 import { useState } from 'react';
 import 'video.js/dist/video-js.css';
-import VideoPlayer from './components/VideoPlayer';
+import VideoPlayer from '../../widgets/video-player/VideoPlayer';
 import { useNavigate } from 'react-router-dom';
 
 const BASE_URL = import.meta.env.VITE_API_URL;

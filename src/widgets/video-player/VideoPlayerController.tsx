@@ -1,46 +1,170 @@
-import React from 'react';
+import { axiosInstance } from '@shared/lib/axios/axios';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
-export default function VideoPlayerController({
-  player,
-  isPlaying,
-  volume,
-  rate,
-  muted,
-  current,
-  duration,
-  changeCurrentTime,
-  changeMuted,
-  changeVolume,
-  changeRate,
-}: {
-  player: any;
-  isPlaying: boolean;
-  volume: number;
-  rate: number;
-  muted: boolean;
-  current: number;
-  duration: number;
-  changeCurrentTime: (time: number) => void;
-  changeMuted: (value: boolean) => void;
-  changeVolume: (value: number) => void;
-  changeRate: (value: number) => void;
-}) {
+const BASE_URL = import.meta.env.VITE_API_URL;
+const API_URL = '/api/v1/files/video/frame';
+
+export default function VideoPlayerController({ player }: { player: any }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [rate, setRate] = useState(1);
+  const [muted, setMuted] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [hoverTime, setHoverTime] = useState<number | null>(null);
+  const [hoverImageUrl, setHoverImageUrl] = useState<string | null>(null);
+
+  const progressBarRef = useRef<HTMLInputElement | null>(null);
+
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value);
     player?.currentTime(val);
-    changeCurrentTime(val);
+    setCurrent(val);
   };
+
+  function handleKeydown(e: KeyboardEvent) {
+    // 포커스가 body(즉, 아무 입력창에도 focus 안 된 상태)일 때만 동작
+    if (
+      document.activeElement &&
+      document.activeElement !== document.body &&
+      !document.activeElement.closest('#video-player')
+    )
+      return;
+    if (!player) return;
+
+    switch (e.key) {
+      case ' ':
+        e.preventDefault();
+        player.paused() ? player.play() : player.pause();
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        player.currentTime(player.currentTime() + 5);
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        player.currentTime(player.currentTime() - 5);
+        break;
+      case 'b':
+      case 'B': {
+        const fps = 30;
+        player.currentTime(player.currentTime() - 1 / fps);
+        break;
+      }
+      case 'n':
+      case 'N': {
+        const fps = 30;
+        player.currentTime(player.currentTime() + 1 / fps);
+        break;
+      }
+      case 'ArrowUp':
+        player.volume(Math.min(player.volume() + 0.1, 1));
+        break;
+      case 'ArrowDown':
+        player.volume(Math.max(player.volume() - 0.1, 0));
+        break;
+      case '+':
+        player.playbackRate(Math.min(player.playbackRate() + 0.25, 2));
+        break;
+      case '-':
+        player.playbackRate(Math.max(player.playbackRate() - 0.25, 0.25));
+        break;
+      case 'f':
+      case 'F':
+        player.isFullscreen()
+          ? player.exitFullscreen()
+          : player.requestFullscreen();
+        break;
+      case 'm':
+      case 'M':
+        player.muted(!player.muted());
+        break;
+    }
+  }
+
+  // 진행바에 마우스 올릴 때 썸네일 요청 (debounce 적용)
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const fetchThumbnail = useCallback(async (time: number) => {
+    try {
+      const timeStr = new Date(time * 1000).toISOString().substring(11, 23);
+      const res = await axiosInstance.get(`${API_URL}?time=${timeStr}`);
+      setHoverImageUrl(`${BASE_URL}/${res.data}`);
+    } catch {
+      setHoverImageUrl(null);
+    }
+  }, []);
+
+  // hoverTime이 바뀔 때마다 항상 썸네일 요청
+  useEffect(() => {
+    if (hoverTime === null) return;
+    fetchThumbnail(hoverTime);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      fetchThumbnail(hoverTime);
+    }, 120);
+  }, [hoverTime]);
+
+  // handleProgressBarMouseMove는 hoverTime만 갱신
+  const handleProgressBarMouseMove = (
+    e: React.MouseEvent<HTMLInputElement>
+  ) => {
+    if (!progressBarRef.current || !duration) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    const time = Math.max(0, Math.min(duration, percent * duration));
+    setHoverTime(time);
+  };
+
+  const handleProgressBarMouseLeave = () => {
+    setHoverTime(null);
+    setHoverImageUrl(null);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+  };
+
+  useEffect(() => {
+    const update = () => {
+      setCurrent(player.currentTime());
+      setDuration(player.duration());
+      setMuted(player.muted());
+    };
+
+    if (player) {
+      player.on('play', () => {
+        console.log('play');
+        setIsPlaying(true);
+      });
+      player.on('pause', () => setIsPlaying(false));
+      player.on('volumechange', () => {
+        setVolume(player.volume());
+        setMuted(player.muted());
+      });
+      player.on('ratechange', () => setRate(player.playbackRate()));
+      player.on('timeupdate', update);
+      player.on('loadedmetadata', update);
+      player.on('durationchange', update);
+    }
+
+    window.addEventListener('keydown', handleKeydown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeydown);
+    };
+  }, []);
 
   return (
     <>
       <div className="w-full flex items-center mb-2 px-2 relative">
         <input
+          ref={progressBarRef}
           type="range"
           min={0}
           max={duration || 0}
           step={0.01}
           value={current}
           onChange={handleSeek}
+          onMouseMove={handleProgressBarMouseMove}
+          onMouseLeave={handleProgressBarMouseLeave}
           className="w-full accent-red-600 h-1 appearance-none bg-transparent"
           title="진행바"
           style={{
@@ -49,6 +173,31 @@ export default function VideoPlayerController({
             }%, #444 ${(current / (duration || 1)) * 100}%)`,
           }}
         />
+        {/* 썸네일 미리보기 */}
+        {hoverTime !== null && hoverImageUrl && (
+          <div
+            style={{
+              position: 'absolute',
+              left: `calc(${(hoverTime / (duration || 1)) * 100}% - 60px)`,
+              bottom: '36px',
+              width: '120px',
+              height: '68px',
+              pointerEvents: 'none',
+              zIndex: 10,
+            }}
+          >
+            <img
+              key={hoverImageUrl}
+              src={hoverImageUrl}
+              alt="썸네일 미리보기"
+              className="rounded shadow border bg-black object-contain w-full h-full"
+              style={{ userSelect: 'none' }}
+            />
+            <div className="text-xs text-center text-white bg-black bg-opacity-60 rounded-b px-1 py-0.5 -mt-1">
+              {formatTime(hoverTime)}
+            </div>
+          </div>
+        )}
       </div>
       <div className="w-full flex items-center justify-between px-6 py-4 bg-[#181818] rounded-lg shadow text-white gap-6">
         <div className="flex items-center gap-2">
@@ -108,7 +257,7 @@ export default function VideoPlayerController({
           <button
             onClick={() => {
               player?.muted(!muted);
-              changeMuted(!muted);
+              setMuted(!muted);
             }}
             className="hover:bg-[#333] rounded-full p-2 transition cursor-pointer"
             title={muted ? '음소거 해제(M)' : '음소거(M)'}
@@ -140,7 +289,7 @@ export default function VideoPlayerController({
             onChange={(e) => {
               const vol = parseFloat(e.target.value);
               player?.volume(vol);
-              changeVolume(vol);
+              setVolume(vol);
             }}
             className="w-24 accent-red-600"
             title="볼륨 조절"
@@ -152,7 +301,7 @@ export default function VideoPlayerController({
             onChange={(e) => {
               const newRate = parseFloat(e.target.value);
               player?.playbackRate(newRate);
-              changeRate(newRate);
+              setRate(newRate);
             }}
             className="bg-[#222] text-white border border-gray-600 rounded px-2 py-1 focus:outline-none"
             title="재생 속도"
