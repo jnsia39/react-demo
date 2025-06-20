@@ -109,16 +109,16 @@ export default function VideoPlayer({ source, onChange }: VideoPlayerProps) {
   }, [emitState, onChange]);
 
   return (
-    <div id="video-player">
-      <div data-vjs-player className="mb-4 w-full flex justify-center">
-        <video
-          className="video-js vjs-default-skin rounded-lg shadow-lg cursor-pointer border-4 border-black"
-          ref={videoRef}
-          controls
-          onClick={handleVideoClick}
-          style={{ background: '#181818' }}
-        />
-      </div>
+    <div
+      id="video-player"
+      className="flex flex-col items-center justify-center w-full h-full"
+    >
+      <video
+        className="rounded-lg cursor-pointer"
+        ref={videoRef}
+        controls
+        onClick={handleVideoClick}
+      />
 
       {isLoaded && <VideoPlayerController player={playerRef.current} />}
 

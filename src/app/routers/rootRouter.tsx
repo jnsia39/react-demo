@@ -4,6 +4,7 @@ import Playback from '@pages/playback';
 import Virtualization from '@pages/virtualization';
 import { createBrowserRouter } from 'react-router-dom';
 import ExtractFrame from '@pages/extract-frame';
+import VideoAreaSelector from '@pages/video-area-select';
 
 export const router = createBrowserRouter([
   {
@@ -21,5 +22,9 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.EXTRACT_FRAME,
     element: <ExtractFrame />,
+  },
+  {
+    path: ROUTES.VIDEO_AREA_SELECT,
+    element: <VideoAreaSelector />,
   },
 ]);

@@ -154,7 +154,7 @@ export default function VideoPlayerController({ player }: { player: any }) {
 
   return (
     <>
-      <div className="w-full flex items-center mb-2 px-2 relative">
+      <div className="w-full items-center mb-2 px-2 relative">
         <input
           ref={progressBarRef}
           type="range"

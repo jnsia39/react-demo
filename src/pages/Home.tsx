@@ -28,6 +28,12 @@ export default function Home() {
       >
         EXTRACT_FRAME
       </button>
+      <button
+        className="bg-blue-500 text-white px-4 py-2 rounded"
+        onClick={() => changePage(ROUTES.VIDEO_AREA_SELECT)}
+      >
+        VIDEO_AREA_SELECT
+      </button>
     </div>
   );
 }

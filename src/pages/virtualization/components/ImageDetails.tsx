@@ -19,7 +19,7 @@ export default function ImageDetails({
   }, [source]);
 
   return (
-    <div className="ml-6 w-80 h-[720px] border rounded p-4 bg-white shadow-lg flex flex-col">
+    <div className="h-[720px] border rounded p-4 bg-white flex flex-col">
       {source && imageMeta ? (
         <>
           <div className="flex flex-col items-center mb-4">

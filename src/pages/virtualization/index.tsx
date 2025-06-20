@@ -42,7 +42,7 @@ export default function Virtualization() {
     count: rowCount,
     getScrollElement: () => parentRef.current,
     estimateSize: () => estimateSize,
-    overscan: 5,
+    overscan: 10,
   });
 
   // 현재 보이는 row에서 필요한 page 번호 계산
@@ -132,10 +132,10 @@ export default function Virtualization() {
 
   // 이미지 클릭 핸들러 추가 및 오른쪽 패널 추가
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="flex flex-col">
+    <div className="flex flex-col flex-1 items-center justify-center min-h-screen w-full bg-gray-50">
+      <div className="flex flex-col w-full max-w-6xl mx-auto">
         {/* 상단 총 개수 및 행 개수 조절 UI */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <button
               className="px-3 py-1 rounded border text-sm font-medium transition-colors duration-100"
@@ -165,10 +165,10 @@ export default function Virtualization() {
             ))}
           </div>
         </div>
-        <div className="flex">
+        <div className="flex flex-col md:flex-row gap-4 w-full">
           <div
             ref={parentRef}
-            className="h-[720px] w-[1200px] overflow-auto border rounded"
+            className="w-full md:w-[80%] min-h-[60vh] max-h-[80vh] overflow-auto border rounded bg-white"
           >
             <div
               style={{
