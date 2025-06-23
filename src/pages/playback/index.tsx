@@ -1,10 +1,10 @@
-import { axiosInstance } from '@shared/lib/axios/axios';
+import { baseApi } from '@shared/lib/axios/axios';
 import { useState } from 'react';
 import 'video.js/dist/video-js.css';
 import VideoPlayer from '../../widgets/video-player/VideoPlayer';
 import { useNavigate } from 'react-router-dom';
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 const PATH = `${BASE_URL}/stream.m3u8`;
 
 export default function Playback() {
@@ -17,7 +17,7 @@ export default function Playback() {
   };
 
   const start = async () => {
-    const result = await axiosInstance.post(`/api/v1/files/video`);
+    const result = await baseApi.post(`/api/v1/files/video`);
 
     console.log('Video started:', result.data);
 
@@ -25,7 +25,7 @@ export default function Playback() {
   };
 
   const stop = async () => {
-    const result = await axiosInstance.post(`/api/v1/files/video/stop`);
+    const result = await baseApi.post(`/api/v1/files/video/stop`);
 
     console.log('Video stopped:', result);
   };
@@ -53,10 +53,7 @@ export default function Playback() {
         </button>
       </div>
       <main className="flex flex-col items-center w-full">
-        <div
-          className="bg-black rounded-xl shadow-lg p-8 flex flex-col items-center"
-          style={{ width: 900 }}
-        >
+        <div className="bg-black rounded-xl shadow-lg p-8 flex flex-col items-center">
           <VideoPlayer source={source} />
         </div>
       </main>

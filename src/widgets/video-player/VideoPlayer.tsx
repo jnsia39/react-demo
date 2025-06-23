@@ -3,7 +3,7 @@ import videojs from 'video.js';
 import VideoCommandDescription from './VideoCommandDescription';
 import VideoPlayerController from './VideoPlayerController';
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 const PATH = `${BASE_URL}/stream.m3u8`;
 
 export interface VideoPlayerState {
@@ -57,7 +57,7 @@ export default function VideoPlayer({ source, onChange }: VideoPlayerProps) {
         controls: false,
         autoplay: 'play',
         preload: 'auto',
-        playbackRates: [0.25, 0.5, 1, 1.25, 1.5, 2, 3, 4, 10],
+        playbackRates: [0.25, 0.5, 1, 1.25, 1.5, 2, 3, 4],
         sources: [
           {
             src: PATH,
@@ -114,8 +114,10 @@ export default function VideoPlayer({ source, onChange }: VideoPlayerProps) {
       className="flex flex-col items-center justify-center w-full h-full"
     >
       <video
-        className="rounded-lg cursor-pointer"
+        className="aspect-video rounded-lg cursor-pointer w-full h-full"
         ref={videoRef}
+        width={640}
+        height={360}
         controls
         onClick={handleVideoClick}
       />

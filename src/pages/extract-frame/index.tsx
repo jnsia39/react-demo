@@ -3,9 +3,9 @@ import VideoPlayer, {
   VideoPlayerState,
 } from '@widgets/video-player/VideoPlayer';
 import { useNavigate } from 'react-router-dom';
-import { axiosInstance } from '@shared/lib/axios/axios';
+import { baseApi } from '@shared/lib/axios/axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 const PATH = `${BASE_URL}/stream.m3u8`;
 
 const API_URL = '/api/v1/files/video/frame';
@@ -27,7 +27,7 @@ export default function ExtractFrame() {
     setLoadingFrame(true);
     setFrameImageUrl(``);
     try {
-      const res = await axiosInstance.get(`${API_URL}?frame=${frameNumber}`);
+      const res = await baseApi.get(`${API_URL}?frame=${frameNumber}`);
       setFrameImageUrl(`${BASE_URL}/${res.data}`);
       console.log(`${BASE_URL}/${res.data}`);
     } catch (e) {
@@ -42,7 +42,7 @@ export default function ExtractFrame() {
     setLoadingTime(true);
     setTimeImageUrl(``);
     try {
-      const res = await axiosInstance.get(`${API_URL}?time=${videoTime}`);
+      const res = await baseApi.get(`${API_URL}?time=${videoTime}`);
       setTimeImageUrl(`${BASE_URL}/${res.data}`);
       console.log(`${BASE_URL}/${res.data}`);
     } catch (e) {

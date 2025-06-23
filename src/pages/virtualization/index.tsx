@@ -3,10 +3,10 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef, useEffect, useState, useMemo } from 'react';
 import ImageDetails from './components/ImageDetails';
 import { useNavigate } from 'react-router-dom';
-import { axiosInstance } from '@shared/lib/axios/axios';
+import { cloudApi } from '@shared/lib/axios/axios';
 import VirtualImageRow from './components/VirtualImageRow';
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_AWS_URL;
 const API_URL = `/api/v1/files/image/list`;
 const PAGE_SIZE = 40;
 
@@ -17,7 +17,7 @@ interface PageResponse {
 
 export default function Virtualization() {
   const parentRef = useRef<HTMLDivElement | null>(null);
-  // page별 AbortController 관리
+
   const abortControllers = useRef<Record<number, AbortController>>({});
   const [totalElements, setTotalElements] = useState(0);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -70,7 +70,7 @@ export default function Virtualization() {
         const controller = new AbortController();
         abortControllers.current[page] = controller;
         try {
-          const response = await axiosInstance.get(
+          const response = await cloudApi.get(
             `${API_URL}?page=${page}&size=${PAGE_SIZE}`,
             { signal: controller.signal }
           );
@@ -121,10 +121,8 @@ export default function Virtualization() {
     return arr;
   }, [pageResults, totalElements, neededPages]);
 
-  // 랜덤 메타데이터 생성 함수
-
   const handleClickImage = async (image: string) => {
-    const response = await axiosInstance.get(`/api/v1/files/image/${image}`);
+    const response = await cloudApi.get(`/api/v1/files/image/${image}`);
 
     setSize(`${response.data / 1000}KB`);
     setSelectedImage(image);

@@ -1,7 +1,15 @@
 import axios from 'axios';
 
-export const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+export const cloudApi = axios.create({
+  baseURL: import.meta.env.VITE_AWS_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
+});
+
+export const baseApi = axios.create({
+  baseURL: import.meta.env.VITE_AWS_URL,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',

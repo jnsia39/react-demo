@@ -10,21 +10,30 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.HOME,
     element: <Home />,
+    errorElement: <Home />,
   },
   {
     path: ROUTES.VIRTUALIZATION,
     element: <Virtualization />,
+    errorElement: <Virtualization />,
   },
   {
     path: ROUTES.PLAYBACK,
     element: <Playback />,
+    errorElement: <Playback />,
   },
   {
     path: ROUTES.EXTRACT_FRAME,
     element: <ExtractFrame />,
+    errorElement: <ExtractFrame />,
   },
   {
     path: ROUTES.VIDEO_AREA_SELECT,
     element: <VideoAreaSelector />,
+    errorElement: <VideoAreaSelector />,
+  },
+  {
+    path: '*',
+    element: <Home />,
   },
 ]);

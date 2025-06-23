@@ -2,7 +2,7 @@ import VideoPlayerController from '@widgets/video-player/VideoPlayerController';
 import { useEffect, useRef, useState } from 'react';
 import videojs from 'video.js';
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 const PATH = `${BASE_URL}/stream.m3u8`;
 
 export default function VideoAreaSelector() {

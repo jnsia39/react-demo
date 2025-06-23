@@ -1,7 +1,7 @@
-import { axiosInstance } from '@shared/lib/axios/axios';
+import { baseApi } from '@shared/lib/axios/axios';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 const API_URL = '/api/v1/files/video/frame';
 
 export default function VideoPlayerController({ player }: { player: any }) {
@@ -86,9 +86,11 @@ export default function VideoPlayerController({ player }: { player: any }) {
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchThumbnail = useCallback(async (time: number) => {
+    setHoverImageUrl(``);
+
     try {
       const timeStr = new Date(time * 1000).toISOString().substring(11, 23);
-      const res = await axiosInstance.get(`${API_URL}?time=${timeStr}`);
+      const res = await baseApi.get(`${API_URL}?time=${timeStr}`);
       setHoverImageUrl(`${BASE_URL}/${res.data}`);
     } catch {
       setHoverImageUrl(null);
@@ -98,11 +100,12 @@ export default function VideoPlayerController({ player }: { player: any }) {
   // hoverTime이 바뀔 때마다 항상 썸네일 요청
   useEffect(() => {
     if (hoverTime === null) return;
-    fetchThumbnail(hoverTime);
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
+
     debounceRef.current = setTimeout(() => {
       fetchThumbnail(hoverTime);
-    }, 120);
+    }, 300);
   }, [hoverTime]);
 
   // handleProgressBarMouseMove는 hoverTime만 갱신
@@ -174,25 +177,29 @@ export default function VideoPlayerController({ player }: { player: any }) {
           }}
         />
         {/* 썸네일 미리보기 */}
-        {hoverTime !== null && hoverImageUrl && (
+        {hoverTime !== null && (
           <div
             style={{
               position: 'absolute',
               left: `calc(${(hoverTime / (duration || 1)) * 100}% - 60px)`,
-              bottom: '36px',
+              bottom: '18px',
               width: '120px',
               height: '68px',
               pointerEvents: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'end',
               zIndex: 10,
             }}
           >
-            <img
-              key={hoverImageUrl}
-              src={hoverImageUrl}
-              alt="썸네일 미리보기"
-              className="rounded shadow border bg-black object-contain w-full h-full"
-              style={{ userSelect: 'none' }}
-            />
+            {hoverImageUrl && (
+              <img
+                src={hoverImageUrl}
+                alt="썸네일 미리보기"
+                className="rounded shadow border bg-black object-contain w-full h-full"
+                style={{ userSelect: 'none' }}
+              />
+            )}
             <div className="text-xs text-center text-white bg-black bg-opacity-60 rounded-b px-1 py-0.5 -mt-1">
               {formatTime(hoverTime)}
             </div>
@@ -250,7 +257,10 @@ export default function VideoPlayerController({ player }: { player: any }) {
             </svg>
           </button>
           <span className="ml-4 text-xs text-gray-300">
-            {formatTime(current)} / {formatTime(duration)}
+            {formatTime(current)} /{' '}
+            {duration === Number.POSITIVE_INFINITY
+              ? 'Encoding...'
+              : formatTime(duration)}
           </span>
         </div>
         <div className="flex items-center gap-2">

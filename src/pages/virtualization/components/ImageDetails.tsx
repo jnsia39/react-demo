@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-const BASE_URL = 'http://172.16.7.76:15460';
+const BASE_URL = import.meta.env.VITE_AWS_URL;
 
 export default function ImageDetails({
   source,
@@ -19,7 +19,7 @@ export default function ImageDetails({
   }, [source]);
 
   return (
-    <div className="h-[720px] border rounded p-4 bg-white flex flex-col">
+    <div className=" border rounded p-4 bg-white flex flex-col">
       {source && imageMeta ? (
         <>
           <div className="flex flex-col items-center mb-4">
