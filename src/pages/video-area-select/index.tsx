@@ -1,4 +1,6 @@
+import HlsVideoController from '@widgets/video-player/HlsVideoController';
 import VideoPlayerController from '@widgets/video-player/VideoPlayerController';
+import Hls from 'hls.js';
 import { useEffect, useRef, useState } from 'react';
 import videojs from 'video.js';
 
@@ -93,27 +95,53 @@ export default function VideoAreaSelector() {
   };
 
   useEffect(() => {
-    if (!playerRef.current && videoRef.current) {
+    const videoElement = videoRef.current;
+
+    if (Hls.isSupported() && videoElement) {
+      const hls = new Hls({
+        startLevel: 0,
+        startPosition: -1,
+        maxBufferLength: 30,
+        maxMaxBufferLength: 60,
+        maxBufferSize: 60 * 1000 * 1000, // 60MB
+        maxBufferHole: 0.5,
+        lowLatencyMode: false, // VOD일 경우 false
+        abrEwmaFastLive: 3.0,
+        abrEwmaSlowLive: 9.0,
+        abrBandWidthFactor: 0.95,
+        abrBandWidthUpFactor: 0.8,
+      });
+      hls.loadSource(PATH);
+      hls.attachMedia(videoElement);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        videoElement.play();
+      });
+      videoElement.removeAttribute('controls');
+
+      setIsLoaded(true);
+    } else if (!playerRef.current && videoRef.current) {
       playerRef.current = videojs(videoRef.current, {
-        controls: false,
+        controls: false, // video.js 기본 컨트롤러 비활성화
         autoplay: 'play',
         preload: 'auto',
-        playbackRates: [0.25, 0.5, 1, 1.25, 1.5, 2, 3, 4, 10],
+        playbackRates: [0.25, 0.5, 1, 1.25, 1.5, 2, 3, 4],
         sources: [
           {
             src: PATH,
             type: 'application/x-mpegURL',
           },
         ],
+        vhs: {
+          maxBufferLength: 600,
+        },
       });
-
       setIsLoaded(true);
     }
   }, []);
 
   return (
     <div className="flex items-center justify-center min-h-screen w-full gap-4">
-      <div className=" p-4 bg-black rounded-lg">
+      <div className="bg-black">
         <div
           ref={containerRef}
           className="relative inline-block select-none"
@@ -122,9 +150,10 @@ export default function VideoAreaSelector() {
           onMouseUp={handleMouseUp}
         >
           <video
+            className="aspect-video cursor-pointer w-full h-full"
             ref={videoRef}
-            className="rounded-lg cursor-pointer"
-            controls
+            width={640}
+            height={360}
           />
           {rect && rect.w > 0 && rect.h > 0 && (
             <div
@@ -150,13 +179,18 @@ export default function VideoAreaSelector() {
           )}
         </div>
 
-        {isLoaded && <VideoPlayerController player={playerRef.current} />}
+        {isLoaded &&
+          (Hls.isSupported() ? (
+            <HlsVideoController video={videoRef.current} />
+          ) : (
+            <VideoPlayerController player={playerRef.current} />
+          ))}
       </div>
 
       {/* 추출 버튼 및 미리보기 */}
       <div className="mt-4 flex flex-col items-center gap-2">
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-300"
+          className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-300 cursor-pointer hover:bg-blue-700 transition-colors"
           onClick={handleExtract}
           disabled={!finalRect || finalRect.w === 0 || finalRect.h === 0}
         >

@@ -17,7 +17,7 @@ export default function VirtualImageCell({
   baseUrl,
   index,
 }: VirtualImageCellProps) {
-  const blobUrl = useImageBlobUrl(item ? `${baseUrl}/${item}` : undefined);
+  const blobUrl = useImageBlobUrl(item ? `${baseUrl}/${item}.jpg` : undefined);
 
   return (
     <div

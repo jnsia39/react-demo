@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import videojs from 'video.js';
 import VideoCommandDescription from './VideoCommandDescription';
-import VideoPlayerController from './VideoPlayerController';
-
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-const PATH = `${BASE_URL}/stream.m3u8`;
+import Hls from 'hls.js';
+import DashVideoController from './DashVideoController';
+import * as dashjs from 'dashjs';
 
 export interface VideoPlayerState {
   currentTime: number;
@@ -17,11 +15,12 @@ export interface VideoPlayerState {
 
 interface VideoPlayerProps {
   source: string;
+  initialDuration: number;
   onChange?: (state: VideoPlayerState) => void;
 }
 
 export default function VideoPlayer({ source, onChange }: VideoPlayerProps) {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const videoRef = useRef<any | null>(null);
   const playerRef = useRef<any | null>(null);
 
   const [isLoaded, setIsLoaded] = useState(false);
@@ -50,41 +49,88 @@ export default function VideoPlayer({ source, onChange }: VideoPlayerProps) {
     }
   };
 
-  // video.js 인스턴스 초기화
   useEffect(() => {
-    if (!playerRef.current && videoRef.current) {
-      playerRef.current = videojs(videoRef.current, {
-        controls: false,
-        autoplay: 'play',
-        preload: 'auto',
-        playbackRates: [0.25, 0.5, 1, 1.25, 1.5, 2, 3, 4],
-        sources: [
-          {
-            src: PATH,
-            type: 'application/x-mpegURL',
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    // DASH
+    if (source.endsWith('.mpd')) {
+      const dashPlayer = dashjs.MediaPlayer().create();
+      dashPlayer.updateSettings({
+        streaming: {
+          buffer: {
+            bufferPruningInterval: 20,
+            bufferToKeep: 30,
+            bufferTimeAtTopQuality: 30,
+            bufferTimeAtTopQualityLongForm: 60,
           },
-        ],
+          abr: {
+            autoSwitchBitrate: {
+              audio: true,
+              video: true,
+            },
+            initialBitrate: {
+              audio: 300000,
+              video: 1500000,
+            },
+          },
+          delay: {
+            liveDelay: 2,
+          },
+        },
       });
+      dashPlayer.initialize(videoElement, source, true);
+      videoElement.removeAttribute('controls'); // 기본 컨트롤러 제거
+      const tryAutoplay = () => {
+        const playPromise = videoElement.play();
+        if (playPromise && typeof playPromise.then === 'function') {
+          playPromise.catch(() => {
+            const onCanPlay = () => {
+              videoElement.play();
+              videoElement.removeEventListener('canplay', onCanPlay);
+            };
+            videoElement.addEventListener('canplay', onCanPlay);
+          });
+        }
+      };
+      tryAutoplay();
       setIsLoaded(true);
+      return () => {
+        dashPlayer && dashPlayer.reset();
+      };
     }
-  }, []);
 
-  // source가 바뀌면 동적으로 소스 변경
-  useEffect(() => {
-    const player = playerRef.current;
-    if (source && player) {
-      player.src({
-        src: source,
-        type: 'application/x-mpegURL',
+    // HLS
+    if (Hls.isSupported() && source.endsWith('.m3u8')) {
+      const hls = new Hls({
+        startLevel: 0,
+        startPosition: -1,
+        maxBufferLength: 30,
+        maxMaxBufferLength: 60,
+        maxBufferSize: 60 * 1000 * 1000, // 60MB
+        maxBufferHole: 0.5,
+        lowLatencyMode: false, // VOD일 경우 false
+        abrEwmaFastLive: 3.0,
+        abrEwmaSlowLive: 9.0,
+        abrBandWidthFactor: 0.95,
+        abrBandWidthUpFactor: 0.8,
       });
-
-      player.play();
+      hls.loadSource(source);
+      hls.attachMedia(videoElement);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        videoElement.play();
+      });
+      videoElement.removeAttribute('controls');
+      setIsLoaded(true);
+      return () => {
+        hls && hls.destroy();
+      };
     }
   }, [source]);
 
   // 주요 이벤트에 대한 상태 전달
   useEffect(() => {
-    const player = playerRef.current;
+    const player = videoRef.current;
     if (!player || !onChange) return;
 
     const update = emitState;
@@ -114,15 +160,16 @@ export default function VideoPlayer({ source, onChange }: VideoPlayerProps) {
       className="flex flex-col items-center justify-center w-full h-full"
     >
       <video
-        className="aspect-video rounded-lg cursor-pointer w-full h-full"
+        id="videoPlayer"
+        controls
+        className="aspect-video cursor-pointer w-full h-full"
         ref={videoRef}
         width={640}
         height={360}
-        controls
         onClick={handleVideoClick}
       />
 
-      {isLoaded && <VideoPlayerController player={playerRef.current} />}
+      {isLoaded && <DashVideoController video={videoRef.current} />}
 
       <div className="w-full flex flex-col items-center gap-4">
         <VideoCommandDescription />

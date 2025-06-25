@@ -42,7 +42,7 @@ export default function Virtualization() {
     count: rowCount,
     getScrollElement: () => parentRef.current,
     estimateSize: () => estimateSize,
-    overscan: 10,
+    overscan: 20,
   });
 
   // 현재 보이는 row에서 필요한 page 번호 계산
