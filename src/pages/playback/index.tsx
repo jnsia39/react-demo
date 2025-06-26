@@ -1,16 +1,15 @@
 import { baseApi } from '@shared/lib/axios/axios';
-import { useRef, useState } from 'react';
-import 'video.js/dist/video-js.css';
+import { useState } from 'react';
 import VideoPlayer from '../../widgets/video-player/VideoPlayer';
 import { useNavigate } from 'react-router-dom';
+
+import 'video.js/dist/video-js.css';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const PATH = `${BASE_URL}/stream.mpd`;
 // const PATH = `${BASE_URL}/stream.m3u8`;
 
 export default function Playback() {
-  const durationRef = useRef(0);
-
   const [source, setSource] = useState(PATH);
 
   const navigate = useNavigate();
@@ -55,12 +54,7 @@ export default function Playback() {
       </div>
       <main className="flex flex-col items-center w-full">
         <div className="bg-black rounded-xl shadow-lg p-8 flex flex-col items-center">
-          {source && (
-            <VideoPlayer
-              source={source}
-              initialDuration={durationRef.current}
-            />
-          )}
+          {source && <VideoPlayer source={source} />}
         </div>
       </main>
     </div>

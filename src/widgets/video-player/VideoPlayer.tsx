@@ -15,7 +15,6 @@ export interface VideoPlayerState {
 
 interface VideoPlayerProps {
   source: string;
-  initialDuration: number;
   onChange?: (state: VideoPlayerState) => void;
 }
 

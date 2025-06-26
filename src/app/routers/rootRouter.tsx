@@ -5,6 +5,7 @@ import Virtualization from '@pages/virtualization';
 import { createBrowserRouter } from 'react-router-dom';
 import ExtractFrame from '@pages/extract-frame';
 import VideoAreaSelector from '@pages/video-area-select';
+import FileUpload from '@pages/file-upload';
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,11 @@ export const router = createBrowserRouter([
     path: ROUTES.VIDEO_AREA_SELECT,
     element: <VideoAreaSelector />,
     errorElement: <VideoAreaSelector />,
+  },
+  {
+    path: ROUTES.FILE_UPLOAD,
+    element: <FileUpload />,
+    errorElement: <FileUpload />,
   },
   {
     path: '*',

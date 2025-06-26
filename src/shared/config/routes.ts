@@ -4,5 +4,6 @@ export const ROUTES = {
   PLAYBACK: '/playback',
   EXTRACT_FRAME: '/extract-frame',
   VIDEO_AREA_SELECT: '/video-area-select',
+  FILE_UPLOAD: '/file-upload',
   NOT_FOUND: '*',
 };
