@@ -1,6 +1,7 @@
 import { ROUTES } from '@shared/config/routes';
 import VideoChunkUploader from '@widgets/video-uploader/VideoChunkUploader';
 import { useNavigate } from 'react-router-dom';
+import BlurredVideoPlayer from './blurred-video-player';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export default function Home() {
 
   return (
     <div className="flex justify-center items-center h-screen flex-col gap-4">
+      <BlurredVideoPlayer />
       <VideoChunkUploader />
       <button
         className="bg-blue-500 text-white px-4 py-2 rounded"
