@@ -29,11 +29,11 @@ export default function VideoPlaylist({
             등록된 비디오가 없습니다
           </div>
         ) : (
-          <ul className="divide-y bg-white">
+          <ul className=" bg-white">
             {videoList.map((video: any) => (
               <li
                 key={video}
-                className={`px-4 py-2 flex items-center border mb-2 cursor-pointer hover:bg-blue-50 transition ${
+                className={`px-4 py-2 flex items-center mb-2 cursor-pointer hover:bg-blue-50 transition ${
                   selectedVideo === video
                     ? 'bg-blue-100 font-bold text-blue-700'
                     : ''
@@ -46,9 +46,9 @@ export default function VideoPlaylist({
           </ul>
         )}
       </div>
-      <button className="mt-2 px-4 py-2 bg-red-600 text-white hover:bg-blue-700 transition">
+      {/* <button className="mt-2 px-4 py-2 bg-red-600 text-white hover:bg-blue-700 transition">
         초기화
-      </button>
+      </button> */}
     </div>
   );
 }

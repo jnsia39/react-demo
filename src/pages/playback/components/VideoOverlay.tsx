@@ -1,124 +1,90 @@
-import React from 'react';
+import { useEffect, useMemo } from 'react';
 import { useVideoAreaSelect } from '../../../features/video/model/useVideoAreaSelect';
 import { useVideoStore } from '@pages/playback/store/videoStore';
 import { useVideoPan } from '../../../features/video/model/useVideoPan';
+import { useVideoRect } from '@features/video/model/useVideoRect';
+import SelectedArea from '@features/video/ui/SelectedArea';
 
 interface VideoOverlayProps {
-  editMode: boolean;
   videoRef: React.RefObject<HTMLVideoElement>;
-  zoom: number;
-  children: React.ReactNode;
 }
 
-export function VideoOverlay({
-  videoRef,
-  editMode,
-  zoom,
-  children,
-}: VideoOverlayProps) {
-  const { finalRect, setFinalRect, panOffset, setPanOffset } = useVideoStore();
+export function VideoOverlay({ videoRef }: VideoOverlayProps) {
+  const video = videoRef.current;
+  if (!video) {
+    console.error('Video element is not available');
+    return null;
+  }
+
+  const { selectedArea, setSelectedArea, editMode, zoom } = useVideoStore();
+
   const {
-    containerRef,
-    containerSize,
+    overlayRef,
+    renderRect,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
-    renderRect,
     handleResizeMouseDown,
-  } = useVideoAreaSelect({ videoRef, editMode, finalRect, setFinalRect });
+  } = useVideoAreaSelect({
+    video,
+    editMode,
+    selectedArea,
+    setSelectedArea,
+  });
+
+  const videoRect = useVideoRect(video);
+  const overlaySize = useMemo(() => {
+    return {
+      width: videoRect.width,
+      height: videoRect.height,
+      top: videoRect.top,
+      left: videoRect.left,
+    };
+  }, [videoRect, editMode, zoom, video, video?.src]);
 
   const { getPanMouseDown } = useVideoPan({
-    zoom,
-    panOffset,
-    setPanOffset,
     editMode,
-    containerSize,
+    videoRect,
+    overlaySize,
   });
+
+  useEffect(() => {
+    console.log('VideoOverlay mounted', video);
+  }, [video]);
 
   return (
     <div
-      ref={containerRef}
+      ref={overlayRef}
       style={{
-        position: 'relative',
+        position: 'absolute',
         overflow: 'hidden',
-        width: '100%',
-        height: '100%',
+        width: overlaySize.width,
+        height: overlaySize.height,
+        top: overlaySize.top,
+        left: overlaySize.left,
         pointerEvents: 'none',
         zIndex: 1000,
       }}
     >
-      {children}
       <div
-        className="absolute select-none w-full h-full"
+        className="absolute select-none"
         style={{
           pointerEvents: 'auto',
-          width: '100%',
-          height: '100%',
-          top: 0,
-          left: 0,
-          cursor: editMode ? 'crosshair' : 'grab',
+          width: overlaySize.width,
+          height: overlaySize.height,
+
+          cursor: editMode ? 'crosshair' : zoom > 1 ? 'grab' : 'default',
           zIndex: 1000,
         }}
         onMouseDown={editMode ? handleMouseDown : getPanMouseDown()}
         onMouseMove={editMode ? handleMouseMove : undefined}
         onMouseUp={editMode ? handleMouseUp : undefined}
       >
-        {renderRect && renderRect.w > 0 && renderRect.h > 0 && (
-          <div
-            className={`absolute border-2 ${
-              editMode ? 'border-red-500' : 'border-gray-400'
-            } ${editMode ? '' : 'pointer-events-none'}`}
-            style={{
-              left: renderRect.x,
-              top: renderRect.y,
-              width: renderRect.w,
-              height: renderRect.h,
-              zIndex: 10,
-              transition: 'opacity 0.2s, background 0.2s',
-            }}
-          >
-            {editMode &&
-              ['nw', 'ne', 'sw', 'se'].map((dir) => {
-                const style: React.CSSProperties = {
-                  position: 'absolute',
-                  width: 8,
-                  height: 8,
-                  background: '#fff',
-                  border: '2px solid #f00',
-                  zIndex: 20,
-                  transition: 'border 0.2s',
-                };
-
-                if (dir === 'nw') {
-                  style.left = -4;
-                  style.top = -4;
-                  style.cursor = 'nwse-resize';
-                } else if (dir === 'ne') {
-                  style.right = -4;
-                  style.top = -4;
-                  style.cursor = 'nesw-resize';
-                } else if (dir === 'sw') {
-                  style.left = -4;
-                  style.bottom = -4;
-                  style.cursor = 'nesw-resize';
-                } else if (dir === 'se') {
-                  style.right = -4;
-                  style.bottom = -4;
-                  style.cursor = 'nwse-resize';
-                }
-
-                return (
-                  <div
-                    key={dir}
-                    style={style}
-                    onMouseDown={(e) =>
-                      handleResizeMouseDown(dir as 'nw' | 'ne' | 'sw' | 'se', e)
-                    }
-                  />
-                );
-              })}
-          </div>
-        )}
+        <SelectedArea
+          renderRect={renderRect}
+          editMode={editMode}
+          handleResizeMouseDown={handleResizeMouseDown}
+        />
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ export default function useVideoList() {
   return useQuery({
     queryKey: ['videoList'],
     queryFn: async () => {
-      const response = await baseApi.get('/api/v1/files/video');
+      const response = await baseApi.get('/api/v1/videos');
 
       if (response.status !== 200) {
         throw new Error('Failed to fetch video list');

@@ -2,7 +2,7 @@ import { baseApi } from '@shared/lib/axios/axios';
 import { useState } from 'react';
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-const API_URL = '/api/v1/files/video/frame';
+const API_URL = '/api/v1/videos/frame';
 
 export default function FrameExtractor({
   selectedVideo,

@@ -1,53 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 
 export function useVideoAreaSelect({
-  videoRef,
   editMode,
-  finalRect,
-  setFinalRect,
+  selectedArea,
+  setSelectedArea,
 }: {
-  videoRef: React.RefObject<HTMLVideoElement>;
+  video: HTMLVideoElement | null;
   editMode: boolean;
-  finalRect: any;
-  setFinalRect: (r: any) => void;
+  selectedArea: any;
+  setSelectedArea: (r: any) => void;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerSize, setContainerSize] = useState({
-    x: 0,
-    y: 0,
-    width: 640,
-    height: 360,
-  });
+  const overlayRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    const updateSize = () => {
-      if (videoRef.current && containerRef.current) {
-        const rect = videoRef.current.getBoundingClientRect();
-        setContainerSize({
-          x: rect.x,
-          y: rect.y,
-          width: rect.width,
-          height: rect.height,
-        });
-      }
-    };
-
-    updateSize();
-
-    window.addEventListener('resize', updateSize);
-    return () => window.removeEventListener('resize', updateSize);
-  }, [videoRef, editMode]);
-
-  // editMode가 false로 바뀌면 사각형 상태 초기화
-  useEffect(() => {
-    if (!editMode) {
-      setIsDrawing(false);
-      setIsMoving(false);
-      setResizeDir(null);
-    }
-  }, [editMode]);
-
-  // rect & crop
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [currentPos, setCurrentPos] = useState({ x: 0, y: 0 });
@@ -57,18 +21,25 @@ export function useVideoAreaSelect({
     null
   );
 
-  const pxToPercent = (x: number, y: number) => ({
-    x: (x / containerSize.width) * 100,
-    y: (y / containerSize.height) * 100,
-  });
+  const pxToPercent = (x: number, y: number) => {
+    if (!overlayRef.current) return { x: 0, y: 0 };
+    return {
+      x: (x / overlayRef.current.clientWidth) * 100,
+      y: (y / overlayRef.current.clientHeight) * 100,
+    };
+  };
 
-  const percentToPx = (x: number, y: number) => ({
-    x: (x / 100) * containerSize.width,
-    y: (y / 100) * containerSize.height,
-  });
+  const percentToPx = (x: number, y: number) => {
+    if (!overlayRef.current) return { x: 0, y: 0 };
+    return {
+      x: (x / 100) * overlayRef.current.clientWidth,
+      y: (y / 100) * overlayRef.current.clientHeight,
+    };
+  };
 
   const getRelativePos = (e: React.MouseEvent) => {
-    const rect = containerRef.current!.getBoundingClientRect();
+    if (!overlayRef.current) return { x: 0, y: 0 };
+    const rect = overlayRef.current.getBoundingClientRect();
     return {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
@@ -79,7 +50,7 @@ export function useVideoAreaSelect({
     dir: 'nw' | 'ne' | 'sw' | 'se',
     e: React.MouseEvent
   ) => {
-    if (!editMode) return; // editMode가 true일 때만 리사이즈 가능
+    if (!editMode) return;
     e.stopPropagation();
     setResizeDir(dir);
     setIsDrawing(false);
@@ -92,8 +63,8 @@ export function useVideoAreaSelect({
     const posPx = getRelativePos(e);
     const pos = pxToPercent(posPx.x, posPx.y);
 
-    if (resizeDir && finalRect) {
-      let { x, y, w, h } = finalRect;
+    if (resizeDir && selectedArea) {
+      let { x, y, w, h } = selectedArea;
       const minSize = 2;
       if (resizeDir === 'nw') {
         const nx = Math.min(x + w - minSize, pos.x);
@@ -121,16 +92,16 @@ export function useVideoAreaSelect({
         h = ny - y;
       }
 
-      setFinalRect({ x, y, w, h });
+      setSelectedArea({ x, y, w, h });
       return;
     }
 
-    if (isMoving && finalRect) {
-      setFinalRect({
+    if (isMoving && selectedArea) {
+      setSelectedArea({
         x: pos.x - moveOffset.x,
         y: pos.y - moveOffset.y,
-        w: finalRect.w,
-        h: finalRect.h,
+        w: selectedArea.w,
+        h: selectedArea.h,
       });
       return;
     }
@@ -145,20 +116,20 @@ export function useVideoAreaSelect({
     const pos = pxToPercent(posPx.x, posPx.y);
 
     if (
-      finalRect &&
-      pos.x >= finalRect.x &&
-      pos.x <= finalRect.x + finalRect.w &&
-      pos.y >= finalRect.y &&
-      pos.y <= finalRect.y + finalRect.h
+      selectedArea &&
+      pos.x >= selectedArea.x &&
+      pos.x <= selectedArea.x + selectedArea.w &&
+      pos.y >= selectedArea.y &&
+      pos.y <= selectedArea.y + selectedArea.h
     ) {
       setIsMoving(true);
-      setMoveOffset({ x: pos.x - finalRect.x, y: pos.y - finalRect.y });
+      setMoveOffset({ x: pos.x - selectedArea.x, y: pos.y - selectedArea.y });
       return;
     }
     setStartPos(pos);
     setCurrentPos(pos);
     setIsDrawing(true);
-    setFinalRect(null);
+    setSelectedArea(null);
   };
 
   const dragRect = isDrawing
@@ -169,14 +140,16 @@ export function useVideoAreaSelect({
         h: Math.abs(currentPos.y - startPos.y),
       }
     : null;
-  const rect = dragRect || finalRect;
-  const renderRect = rect
-    ? (() => {
-        const { x, y } = percentToPx(rect.x, rect.y);
-        const { x: w, y: h } = percentToPx(rect.w, rect.h);
-        return { x, y, w, h };
-      })()
-    : null;
+  const rect = dragRect || selectedArea;
+
+  const renderRect =
+    rect && editMode
+      ? (() => {
+          const { x, y } = percentToPx(rect.x, rect.y);
+          const { x: w, y: h } = percentToPx(rect.w, rect.h);
+          return { x, y, w, h };
+        })()
+      : null;
 
   const handleMouseUp = () => {
     if (!editMode) return; // editMode가 true일 때만 마무리 가능
@@ -189,16 +162,27 @@ export function useVideoAreaSelect({
       const w = Math.abs(currentPos.x - startPos.x);
       const h = Math.abs(currentPos.y - startPos.y);
 
-      setFinalRect({ x, y, w, h });
+      setSelectedArea({ x, y, w, h });
     }
   };
 
+  const stopSelecting = () => {
+    setIsDrawing(false);
+    setIsMoving(false);
+    setResizeDir(null);
+  };
+
+  useEffect(() => {
+    if (!editMode) {
+      stopSelecting();
+    }
+  }, [editMode]);
+
   return {
-    containerRef,
-    videoRef,
-    finalRect,
+    overlayRef,
+    selectedArea,
     resizeDir,
-    containerSize,
+    stopSelecting,
     handleMouseDown,
     handleResizeMouseDown,
     handleMouseMove,

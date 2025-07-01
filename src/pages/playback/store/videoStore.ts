@@ -27,29 +27,29 @@ interface VideoState {
   setPanOffset: (o: { x: number; y: number }) => void;
   editMode: boolean;
   setEditMode: (v: boolean) => void;
-  finalRect: Rect | null;
-  setFinalRect: (r: Rect | null) => void;
+  selectedArea: Rect | null;
+  setSelectedArea: (r: Rect | null) => void;
   resetAll: () => void;
 }
 
 export const useVideoStore = create<VideoState>((set /*, get */) => ({
   zoom: 1,
-  setZoom: (z) =>
+  setZoom: (zoom) =>
     set((state) => ({
-      zoom: z,
-      panOffset: clampPan(state.panOffset, z),
+      zoom: zoom,
+      panOffset: clampPan(state.panOffset, zoom),
     })),
   panOffset: { x: 0, y: 0 },
   setPanOffset: (o) => set({ panOffset: o }),
   editMode: false,
   setEditMode: (v) => set({ editMode: v }),
-  finalRect: null,
-  setFinalRect: (r) => set({ finalRect: r }),
+  selectedArea: null,
+  setSelectedArea: (r) => set({ selectedArea: r }),
   resetAll: () =>
     set({
       zoom: 1,
       panOffset: { x: 0, y: 0 },
       editMode: false,
-      finalRect: null,
+      selectedArea: null,
     }),
 }));

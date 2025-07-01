@@ -1,18 +1,18 @@
-export default function VideoAreaSelectInfo({
-  rect,
-}: {
-  rect: { x: number; y: number; w: number; h: number } | null;
-}) {
-  const w = Math.round(rect?.w || 0);
-  const h = Math.round(rect?.h || 0);
+import { useVideoStore } from '@pages/playback/store/videoStore';
 
-  const isEmpty = !rect || (w === 0 && h === 0);
+export default function VideoAreaSelectInfo() {
+  const { selectedArea } = useVideoStore();
 
-  const x = isEmpty ? 0 : Math.round(rect?.x || 0);
-  const y = isEmpty ? 0 : Math.round(rect?.y || 0);
+  const w = Math.round(selectedArea?.w || 0);
+  const h = Math.round(selectedArea?.h || 0);
+
+  const isEmpty = !selectedArea || (w === 0 && h === 0);
+
+  const x = isEmpty ? 0 : Math.round(selectedArea?.x || 0);
+  const y = isEmpty ? 0 : Math.round(selectedArea?.y || 0);
 
   return (
-    <div className="flex gap-4 text-xs text-gray-700 bg-gray-50 rounded-lg px-4 py-2 border border-gray-200 shadow-sm">
+    <div className="flex gap-4 text-xs text-gray-700 bg-gray-50 px-4 py-2 border border-gray-200 shadow-sm">
       <span>
         X: <span className="font-mono">{x}px</span>
       </span>

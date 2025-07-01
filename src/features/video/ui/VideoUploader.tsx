@@ -2,7 +2,7 @@ import { baseApi } from '@shared/lib/axios/axios';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 
-const API_URL = '/api/v1/files/video/upload';
+const API_URL = '/api/v1/videos/upload';
 
 export default function VideoUploader() {
   const [uploading, setUploading] = useState(false);

@@ -11,12 +11,13 @@ import {
 } from '@features/video/ui/VideoIcons';
 import { debounce } from 'lodash';
 import { checkEncoded } from '@entities/video/utils/checkEncoded';
+import { formatTime, formatTimeWithMs } from '@shared/utils/time';
 
 interface DashVideoControllerProps {
   video: HTMLVideoElement | null;
   selectedVideo: string;
-  zoom: number;
-  setZoom: (z: number) => void;
+  zoom?: number;
+  setZoom?: (z: number) => void;
 }
 
 export default function VideoController({
@@ -26,6 +27,7 @@ export default function VideoController({
   setZoom,
 }: DashVideoControllerProps) {
   const latestSelectedVideo = useRef(selectedVideo);
+  const thumbnailAbortRef = useRef<AbortController | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
@@ -36,8 +38,6 @@ export default function VideoController({
   const [thumbnailTime, setThumbnailTime] = useState<number | null>(null);
   const [thumbnailX, setThumbnailX] = useState<number>(0);
   const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
-
-  const thumbnailAbortRef = useRef<AbortController | null>(null);
 
   const getThumbnailUrl = async (time: number, filename: string) => {
     if (!filename) return;
@@ -55,9 +55,7 @@ export default function VideoController({
     thumbnailAbortRef.current = controller;
 
     const res = await baseApi.get(
-      `/api/v1/files/video/thumbnail/${filename}?time=${formatTimeWithMs(
-        time
-      )}`,
+      `/api/v1/videos/thumbnail/${filename}?time=${formatTimeWithMs(time)}`,
       { signal: controller.signal }
     );
     setThumbnailUrl(`${baseURL}/${res.data}`);
@@ -72,32 +70,6 @@ export default function VideoController({
   useEffect(() => {
     latestSelectedVideo.current = selectedVideo;
   }, [selectedVideo]);
-
-  // const getVideoDuration = async () => {
-  //   const response = await baseApi.get(
-  //     `/api/v1/files/video/duration/${selectedVideo}`
-  //   );
-  //   return response.data;
-  // };
-
-  // useEffect(() => {
-  //   if (!video) return;
-
-  //   const fetchDuration = async () => {
-  //     try {
-  //       const duration = await getVideoDuration();
-  //       setDuration(duration);
-  //     } catch (error) {
-  //       console.error('비디오 길이 가져오기 실패:', error);
-  //     }
-  //   };
-
-  //   fetchDuration();
-
-  //   return () => {
-  //     video.removeEventListener('loadedmetadata', () => {});
-  //   };
-  // }, [selectedVideo]);
 
   // 진행바에서 마우스 위치로 시간 계산 (공통 함수)
   const getTimeFromMouseEvent = (e: any) => {
@@ -143,7 +115,7 @@ export default function VideoController({
       video.removeEventListener('loadedmetadata', update);
       video.removeEventListener('durationchange', update);
     };
-  }, [video]);
+  }, [video, selectedVideo]);
 
   return (
     <div className="w-full flex flex-col items-center justify-between px-4 py-2 bg-[#181818] text-white gap-2">
@@ -179,8 +151,8 @@ export default function VideoController({
         <div
           style={{
             position: 'absolute',
-            left: `calc(${thumbnailX}px - 60px)`, // 썸네일 중앙 정렬 (썸네일 가로 120px 기준)
-            bottom: '48px', // 진행바 위에 띄우기
+            left: `calc(${thumbnailX}px - 60px)`,
+            bottom: '220px',
             pointerEvents: 'none',
             zIndex: 50,
           }}
@@ -276,23 +248,25 @@ export default function VideoController({
             title="볼륨 조절"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            className="px-2 py-1 border-white border rounded hover:bg-gray-300"
-            onClick={() => setZoom(Math.max(1, +(zoom - 0.1).toFixed(2)))}
-            disabled={zoom <= 1}
-          >
-            -
-          </button>
-          <span className="text-white">Zoom: {zoom.toFixed(1)}x</span>
-          <button
-            className="px-2 py-1 border-white border rounded hover:bg-gray-300"
-            onClick={() => setZoom(Math.min(3, +(zoom + 0.1).toFixed(2)))}
-            disabled={zoom >= 10}
-          >
-            +
-          </button>
-        </div>
+        {zoom && setZoom && (
+          <div className="flex items-center gap-2">
+            <button
+              className="px-2 py-1 border-white border rounded hover:bg-gray-300"
+              onClick={() => setZoom(Math.max(1, +(zoom - 0.1).toFixed(2)))}
+              disabled={zoom <= 1}
+            >
+              -
+            </button>
+            <span className="text-white">Zoom: {zoom.toFixed(1)}x</span>
+            <button
+              className="px-2 py-1 border-white border rounded hover:bg-gray-300"
+              onClick={() => setZoom(Math.min(3, +(zoom + 0.1).toFixed(2)))}
+              disabled={zoom >= 10}
+            >
+              +
+            </button>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <select
             value={rate}
@@ -326,36 +300,4 @@ export default function VideoController({
       </div>
     </div>
   );
-}
-
-function formatTime(sec: number) {
-  if (isNaN(sec)) return '00:00';
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60)
-    .toString()
-    .padStart(2, '0');
-  const s = Math.floor(sec % 60)
-    .toString()
-    .padStart(2, '0');
-  if (h > 0) {
-    return `${h}:${m}:${s}`;
-  }
-  return `${m}:${s}`;
-}
-
-function formatTimeWithMs(sec: number) {
-  if (isNaN(sec)) return '00:00:00.000';
-  const h = Math.floor(sec / 3600)
-    .toString()
-    .padStart(2, '0');
-  const m = Math.floor((sec % 3600) / 60)
-    .toString()
-    .padStart(2, '0');
-  const s = Math.floor(sec % 60)
-    .toString()
-    .padStart(2, '0');
-  const ms = Math.floor((sec % 1) * 1000)
-    .toString()
-    .padStart(3, '0');
-  return `${h}:${m}:${s}.${ms}`;
 }

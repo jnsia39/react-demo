@@ -8,17 +8,16 @@ interface VideoAreaCropperProps {
 export default function VideoAreaCropper({ videoRef }: VideoAreaCropperProps) {
   const [croppedUrl, setCroppedUrl] = useState<string>('');
 
-  const { finalRect } = useVideoStore();
+  const { selectedArea } = useVideoStore();
 
   const handleExtract = () => {
-    if (!finalRect || !videoRef.current) return;
+    if (!selectedArea || !videoRef.current) return;
     const video = videoRef.current;
 
-    // finalRect는 % 단위이므로, 비디오의 실제 해상도 기준 px로 변환
-    const sx = (finalRect.x / 100) * video.videoWidth;
-    const sy = (finalRect.y / 100) * video.videoHeight;
-    const sw = (finalRect.w / 100) * video.videoWidth;
-    const sh = (finalRect.h / 100) * video.videoHeight;
+    const sx = (selectedArea.x / 100) * video.videoWidth;
+    const sy = (selectedArea.y / 100) * video.videoHeight;
+    const sw = (selectedArea.w / 100) * video.videoWidth;
+    const sh = (selectedArea.h / 100) * video.videoHeight;
 
     // 캔버스 생성 및 크기 지정
     const canvas = document.createElement('canvas');
@@ -40,7 +39,7 @@ export default function VideoAreaCropper({ videoRef }: VideoAreaCropperProps) {
       <button
         className="px-4 py-2 bg-blue-600 text-white disabled:bg-gray-300 cursor-pointer hover:bg-blue-700 transition-colors"
         onClick={handleExtract}
-        disabled={!finalRect || finalRect.w === 0 || finalRect.h === 0}
+        disabled={!selectedArea || selectedArea.w === 0 || selectedArea.h === 0}
       >
         선택 영역 이미지로 추출
       </button>
@@ -65,10 +64,12 @@ export default function VideoAreaCropper({ videoRef }: VideoAreaCropperProps) {
       <a
         href={croppedUrl}
         download={
-          finalRect
-            ? `cropped_${Math.round(finalRect.x)}_${Math.round(
-                finalRect.y
-              )}_${Math.round(finalRect.w)}x${Math.round(finalRect.h)}.png`
+          selectedArea
+            ? `cropped_${Math.round(selectedArea.x)}_${Math.round(
+                selectedArea.y
+              )}_${Math.round(selectedArea.w)}x${Math.round(
+                selectedArea.h
+              )}.png`
             : 'cropped.png'
         }
         className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"

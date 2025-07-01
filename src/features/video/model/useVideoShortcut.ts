@@ -1,3 +1,4 @@
+import { useVideoStore } from '@pages/playback/store/videoStore';
 import { useEffect } from 'react';
 
 export default function useVideoShortcut({
@@ -5,8 +6,10 @@ export default function useVideoShortcut({
 }: {
   video: HTMLVideoElement | null;
 }) {
+  const { zoom, setZoom } = useVideoStore();
+
   useEffect(() => {
-    if (!video) return;
+    if (!video || !video.src) return;
 
     const handleKeydown = (e: KeyboardEvent) => {
       if (
@@ -15,6 +18,7 @@ export default function useVideoShortcut({
         !document.activeElement.closest('#video-player')
       )
         return;
+
       switch (e.key) {
         case ' ':
           e.preventDefault();
@@ -61,6 +65,12 @@ export default function useVideoShortcut({
         case 'M':
           video.muted = !video.muted;
           break;
+        case '[':
+          setZoom(Math.max(1, +(zoom - 0.1).toFixed(2)));
+          break;
+        case ']':
+          setZoom(Math.min(10, +(zoom + 0.1).toFixed(2)));
+          break;
       }
     };
 
@@ -69,5 +79,5 @@ export default function useVideoShortcut({
     return () => {
       window.removeEventListener('keydown', handleKeydown);
     };
-  }, [video]);
+  }, [video, video?.src, zoom]);
 }
