@@ -130,28 +130,32 @@ export default function Virtualization() {
 
   // 이미지 클릭 핸들러 추가 및 오른쪽 패널 추가
   return (
-    <div className="flex flex-col flex-1 items-center justify-center min-h-screen w-full bg-gray-50">
+    <div className="flex flex-col flex-1 items-center justify-center min-h-screen w-full bg-gradient-to-br from-gray-50 to-gray-200">
       <div className="flex flex-col w-full max-w-6xl mx-auto">
         {/* 상단 총 개수 및 행 개수 조절 UI */}
-        <div className="flex flex-col md:flex-row items-center justify-between mb-4">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-6 px-2">
           <div className="flex items-center gap-4">
             <button
-              className="px-3 py-1 rounded border text-sm font-medium transition-colors duration-100"
+              className="px-4 py-1.5 rounded-lg border text-sm font-semibold transition-colors duration-150 bg-white hover:bg-blue-50 border-gray-300 shadow-sm"
               onClick={goHome}
             >
               뒤로가기
             </button>
-            <div className="font-semibold text-gray-700">
-              총 개수: {totalElements.toLocaleString()}개
+            <div className="font-semibold text-gray-700 text-base">
+              총 개수:{' '}
+              <span className="font-mono">
+                {totalElements.toLocaleString()}
+              </span>
+              개
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mt-2 md:mt-0">
             {[8, 16].map((num) => (
               <button
                 key={num}
                 type="button"
                 onClick={() => setImagesPerRow(num)}
-                className={`px-3 py-1 rounded border text-sm font-medium transition-colors duration-100
+                className={`px-4 py-1.5 rounded-lg border text-sm font-semibold transition-colors duration-150 shadow-sm
               ${
                 imagesPerRow === num
                   ? 'bg-blue-600 text-white border-blue-600'
@@ -163,10 +167,10 @@ export default function Virtualization() {
             ))}
           </div>
         </div>
-        <div className="flex flex-col md:flex-row gap-4 w-full">
+        <div className="flex flex-col md:flex-row gap-6 w-full">
           <div
             ref={parentRef}
-            className="w-full md:w-[80%] min-h-[60vh] max-h-[80vh] overflow-auto border rounded bg-white"
+            className="w-full md:w-[80%] min-h-[60vh] max-h-[80vh] overflow-auto border rounded-xl bg-white shadow-lg"
           >
             <div
               style={{
@@ -203,7 +207,9 @@ export default function Virtualization() {
               })}
             </div>
           </div>
-          <ImageDetails source={selectedImage} size={size} />
+          <div className="w-full md:w-[20%]">
+            <ImageDetails source={selectedImage} size={size} />
+          </div>
         </div>
       </div>
     </div>

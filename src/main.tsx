@@ -1,5 +1,5 @@
 import './index.css';
 import App from './app/App.tsx';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.createRoot(document.getElementById('root')!).render(<App />);

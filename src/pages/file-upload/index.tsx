@@ -7,6 +7,8 @@ export default function FileUpload() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadMsg, setUploadMsg] = useState<string | null>(null);
+  const [progress, setProgress] = useState<number>(0); // 프로그레스 상태 추가
+  const [uploadingFile, setUploadingFile] = useState<File | null>(null); // 업로드 중 파일 상태 추가
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -17,15 +19,27 @@ export default function FileUpload() {
 
     setUploading(true);
     setUploadMsg(null);
+    setProgress(0); // 진행률 초기화
+    setUploadingFile(file); // 업로드 중 파일 설정
 
     const startTime = Date.now();
 
     try {
-      await axios.put(`http://172.16.7.76/upload/${file.name}`, file, {
-        headers: {
-          'Content-Type': file.type || 'application/octet-stream',
-        },
-      });
+      await axios.put(
+        `http://172.16.7.76/upload/${file.name}?path=jnsia`,
+        file,
+        {
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream',
+          },
+          onUploadProgress: (event) => {
+            if (event.total) {
+              const percent = Math.round((event.loaded * 100) / event.total);
+              setProgress(percent);
+            }
+          },
+        }
+      );
 
       const endTime = Date.now();
       const elapsedSec = ((endTime - startTime) / 1000).toFixed(2);
@@ -39,6 +53,8 @@ export default function FileUpload() {
       }
     } finally {
       setUploading(false);
+      setProgress(0); // 업로드 종료 후 프로그레스 초기화(원하면 유지 가능)
+      setUploadingFile(null); // 업로드 끝나면 초기화
     }
   };
 
@@ -78,18 +94,29 @@ export default function FileUpload() {
       <input
         id="file-upload"
         type="file"
-        accept="video/*"
         className="hidden"
         ref={inputRef}
         onChange={handleFileChange}
       />
 
-      {/* 업로드한 파일 이름 표시 */}
-      {selectedFile && (
-        <span className="text-xs text-blue-600 mt-1">
-          업로드 파일: {selectedFile.name}
-        </span>
+      {/* 프로그레스바 표시 */}
+      {uploading && (
+        <div className="w-64 h-3 bg-gray-200 rounded mt-2 overflow-hidden">
+          <div
+            className="h-full bg-blue-500 transition-all"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
       )}
+
+      {/* 업로드한 파일 이름 표시 */}
+      <span className="text-xs text-blue-600 mt-1">
+        {uploading
+          ? uploadingFile?.name // 업로드 중이면 업로드 중인 파일 이름
+          : selectedFile
+          ? `업로드 파일: ${selectedFile.name}` // 업로드 완료 후 파일 이름
+          : ''}
+      </span>
 
       <span id="file-name" className="text-xs text-gray-500 mt-1"></span>
 

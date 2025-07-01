@@ -1,6 +1,9 @@
-export default function VideoCommandDescription() {
+export function VideoHelpInfo() {
   return (
-    <div className="w-full text-xs text-gray-400 mt-2 flex flex-wrap gap-x-4 gap-y-1 justify-center">
+    <div className="w-full text-xs text-gray-400 flex flex-wrap gap-x-4 gap-y-1 p-2 justify-center">
+      <span>편집 모드: 사각형 그리기/이동/리사이즈 가능</span>
+      <span>뷰 모드: 사각형 조작 불가, 영상 탐색만 가능</span>
+      <span>[/] 키: 줌</span>
       <span>
         <b>Space</b>: 재생/일시정지
       </span>
