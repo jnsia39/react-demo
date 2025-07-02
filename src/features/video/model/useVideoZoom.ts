@@ -1,17 +1,17 @@
 import { useVideoStore } from '@pages/playback/store/videoStore';
 import { useCallback, useEffect } from 'react';
 
-interface UseVideoPanProps {
+interface useVideoZoomProps {
   editMode: boolean;
   videoRect: { width: number; height: number };
   overlaySize: { width: number; height: number; top?: number; left?: number };
 }
 
-export function useVideoPan({
+export function useVideoZoom({
   editMode,
   videoRect,
   overlaySize,
-}: UseVideoPanProps) {
+}: useVideoZoomProps) {
   const { zoom, panOffset, setPanOffset } = useVideoStore();
 
   // clamp 함수: 확대 비율에 따라 panOffset 제한

@@ -48,7 +48,7 @@ export default function VideoUploader() {
   return (
     <div className="flex flex-col items-center">
       {uploading ? (
-        <div className="w-full bg-gray-200 rounded overflow-hidden">
+        <div className="w-full bg-gray-200 overflow-hidden border">
           <div
             className="h-full px-4 py-2 bg-blue-500 transition-all truncate"
             style={{ width: `${progress}%` }}
@@ -57,7 +57,7 @@ export default function VideoUploader() {
       ) : (
         <label
           htmlFor="file-upload"
-          className="cursor-pointer inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-blue-50 transition-colors"
+          className="cursor-pointer inline-flex items-center px-4 py-2 bg-white border text-sm font-medium text-gray-700 hover:bg-blue-50 transition-colors"
         >
           <UploadIcon />
           파일 선택

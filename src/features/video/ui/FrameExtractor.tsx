@@ -56,14 +56,14 @@ export default function FrameExtractor({
       >
         {loadingFrame ? '추출 중...' : '프레임 이미지 추출'}
       </button>
-      <div className="w-full h-100 flex flex-col gap-4 items-center justify-center border p-2 overflow-y-auto">
+      <div className="w-full h-100 flex flex-col gap-4 items-center justify-center border p-2 overflow-y-auto bg-white">
         {frameImageUrl.length > 0 ? (
           frameImageUrl.map((url, index) => (
             <div key={index} className="flex flex-col items-center">
               <img
                 src={`${BASE_URL}/${url}`}
                 alt={`프레임 추출 이미지 ${index + 1}`}
-                className="w-48 h-auto rounded shadow mb-2 border"
+                className="w-48 h-auto mb-2 border"
                 style={{ maxWidth: 200 }}
               />
               <span className="text-xs text-gray-500">프레임 {index + 1}</span>

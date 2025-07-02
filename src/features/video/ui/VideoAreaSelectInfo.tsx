@@ -12,7 +12,7 @@ export default function VideoAreaSelectInfo() {
   const y = isEmpty ? 0 : Math.round(selectedArea?.y || 0);
 
   return (
-    <div className="flex gap-4 text-xs text-gray-700 bg-gray-50 px-4 py-2 border border-gray-200 shadow-sm">
+    <div className="flex gap-4 text-xs text-gray-700 bg-gray-50 px-4 py-2 border border-gray-200">
       <span>
         X: <span className="font-mono">{x}px</span>
       </span>

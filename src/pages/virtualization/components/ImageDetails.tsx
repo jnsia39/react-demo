@@ -19,14 +19,14 @@ export default function ImageDetails({
   }, [source]);
 
   return (
-    <div className=" border rounded p-4 bg-white flex flex-col">
+    <div className="border p-4 bg-white flex flex-col">
       {source && imageMeta ? (
         <>
           <div className="flex flex-col items-center mb-4">
             <img
               src={`${BASE_URL}/${source}`}
               alt={source}
-              className="w-60 h-48 object-contain bg-gray-100 border rounded shadow mb-2"
+              className="w-60 h-48 object-contain bg-gray-100 border mb-2"
             />
           </div>
           <ul className="text-sm space-y-2">

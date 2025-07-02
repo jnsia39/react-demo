@@ -7,7 +7,7 @@ export function VideoEditToolbar() {
   return (
     <div className="flex w-full justify-between items-center">
       <button
-        className={`px-4 py-1.5 font-semibold border shadow-sm transition-colors duration-150 text-sm ${
+        className={`px-4 py-1.5 font-semibold border transition-colors duration-150 text-sm ${
           editMode
             ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
             : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'

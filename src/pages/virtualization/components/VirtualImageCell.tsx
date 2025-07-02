@@ -17,12 +17,12 @@ export default function VirtualImageCell({
   baseUrl,
   index,
 }: VirtualImageCellProps) {
-  const blobUrl = useImageBlobUrl(item ? `${baseUrl}/${item}.jpg` : undefined);
+  const blobUrl = useImageBlobUrl(item ? `${baseUrl}/${item}` : undefined);
 
   return (
     <div
       key={index}
-      className={`flex flex-col items-center border rounded cursor-pointer ${
+      className={`flex flex-col items-center border cursor-pointer ${
         isSelected ? 'ring-2 ring-blue-500' : ''
       }`}
       onClick={() => item && onClick(item)}
@@ -34,13 +34,13 @@ export default function VirtualImageCell({
           loading="lazy"
           className={`w-full ${
             imagesPerRow === 16 ? 'h-16' : 'h-32'
-          } object-cover rounded`}
+          } object-cover`}
         />
       ) : (
         <div
           className={`w-full ${
             imagesPerRow === 16 ? 'h-16' : 'h-32'
-          } object-cover rounded justify-center items-center flex text-xs`}
+          } object-cover justify-center items-center flex text-xs`}
         >
           {item?.substring(6, 12) || 'Loading'}
         </div>

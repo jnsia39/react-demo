@@ -1,5 +1,3 @@
-import { baseApi, baseURL } from '@shared/lib/axios/axios';
-import React, { useEffect, useState, useRef } from 'react';
 import {
   IconPrev10,
   IconNext10,
@@ -9,9 +7,9 @@ import {
   IconVolume,
   IconFullscreen,
 } from '@features/video/ui/VideoIcons';
-import { debounce } from 'lodash';
-import { checkEncoded } from '@entities/video/utils/checkEncoded';
-import { formatTime, formatTimeWithMs } from '@shared/utils/time';
+import { formatTime } from '@shared/utils/time';
+import useVideoController from '@features/video/model/useVideoController';
+import VideoSeekBar from '@features/video/ui/VideoSeekBar';
 
 interface DashVideoControllerProps {
   video: HTMLVideoElement | null;
@@ -26,171 +24,36 @@ export default function VideoController({
   zoom,
   setZoom,
 }: DashVideoControllerProps) {
-  const latestSelectedVideo = useRef(selectedVideo);
-  const thumbnailAbortRef = useRef<AbortController | null>(null);
-
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(1);
-  const [rate, setRate] = useState(1);
-  const [muted, setMuted] = useState(true);
-  const [current, setCurrent] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [thumbnailTime, setThumbnailTime] = useState<number | null>(null);
-  const [thumbnailX, setThumbnailX] = useState<number>(0);
-  const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
-
-  const getThumbnailUrl = async (time: number, filename: string) => {
-    if (!filename) return;
-
-    const isEncoded = await checkEncoded(filename);
-    if (!isEncoded) {
-      setThumbnailUrl('');
-      return;
-    }
-
-    if (thumbnailAbortRef.current) {
-      thumbnailAbortRef.current.abort();
-    }
-    const controller = new AbortController();
-    thumbnailAbortRef.current = controller;
-
-    const res = await baseApi.get(
-      `/api/v1/videos/thumbnail/${filename}?time=${formatTimeWithMs(time)}`,
-      { signal: controller.signal }
-    );
-    setThumbnailUrl(`${baseURL}/${res.data}`);
-  };
-
-  const debouncedGetThumbnailUrl = useRef(
-    debounce((time: number) => {
-      getThumbnailUrl(time, latestSelectedVideo.current);
-    }, 100)
-  ).current;
-
-  useEffect(() => {
-    latestSelectedVideo.current = selectedVideo;
-  }, [selectedVideo]);
-
-  // 진행바에서 마우스 위치로 시간 계산 (공통 함수)
-  const getTimeFromMouseEvent = (e: any) => {
-    const rect = e.target.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    return Math.max(0, Math.min(duration, percent * (duration || 0)));
-  };
-
-  // onChange(드래그/클릭)에서도 동일하게 사용
-  const handleSeek = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
-    if (!video) return;
-    const time = getTimeFromMouseEvent(e);
-    video.currentTime = time;
-    setCurrent(time);
-  };
-
-  // 비디오 상태 동기화
-  useEffect(() => {
-    if (!video) return;
-
-    const update = () => {
-      setCurrent(video.currentTime);
-      setMuted(video.muted);
-      setVolume(video.volume);
-      setRate(video.playbackRate);
-      setDuration(video.duration);
-    };
-
-    video.addEventListener('play', () => setIsPlaying(true));
-    video.addEventListener('pause', () => setIsPlaying(false));
-    video.addEventListener('volumechange', update);
-    video.addEventListener('ratechange', update);
-    video.addEventListener('timeupdate', update);
-    video.addEventListener('loadedmetadata', update);
-    video.addEventListener('durationchange', update);
-
-    return () => {
-      video.removeEventListener('play', () => setIsPlaying(true));
-      video.removeEventListener('pause', () => setIsPlaying(false));
-      video.removeEventListener('volumechange', update);
-      video.removeEventListener('ratechange', update);
-      video.removeEventListener('timeupdate', update);
-      video.removeEventListener('loadedmetadata', update);
-      video.removeEventListener('durationchange', update);
-    };
-  }, [video, selectedVideo]);
+  const {
+    isPlaying,
+    volume,
+    setVolume,
+    rate,
+    setRate,
+    muted,
+    setMuted,
+    current,
+    setCurrent,
+    duration,
+  } = useVideoController({ video });
 
   return (
-    <div className="w-full flex flex-col items-center justify-between px-4 py-2 bg-[#181818] text-white gap-2">
-      <input
-        type="range"
-        min={0}
-        max={duration || 0}
-        step={0.01}
-        value={current}
-        onClick={handleSeek}
-        onChange={() => {}}
-        onMouseMove={async (e) => {
-          if (!selectedVideo) return;
-          const time = getTimeFromMouseEvent(e);
-          setThumbnailTime(time);
-          setThumbnailX(e.clientX);
-          debouncedGetThumbnailUrl(time);
-        }}
-        onMouseLeave={() => {
-          setThumbnailTime(null);
-          setThumbnailUrl('');
-        }}
-        className="w-full accent-blue-600 h-1 mt-2 appearance-none bg-transparent"
-        title=""
-        style={{
-          background: `linear-gradient(to right, #60a5fa ${
-            (current / (duration || 1)) * 100
-          }%, #444 ${(current / (duration || 1)) * 100}%)`,
-        }}
+    <div className="w-full flex flex-col items-center justify-between px-0 py-2 bg-neutral-900 text-white gap-2 border-b border-gray-800 relative">
+      <VideoSeekBar
+        video={video}
+        duration={duration}
+        current={current}
+        setCurrent={setCurrent}
+        selectedVideo={selectedVideo}
       />
-      {/* 썸네일 미리보기 */}
-      {thumbnailTime !== null && thumbnailUrl && (
-        <div
-          style={{
-            position: 'absolute',
-            left: `calc(${thumbnailX}px - 60px)`,
-            bottom: '220px',
-            pointerEvents: 'none',
-            zIndex: 50,
-          }}
-        >
-          <img
-            src={thumbnailUrl}
-            alt="썸네일 미리보기"
-            style={{
-              width: 120,
-              height: 68,
-              objectFit: 'cover',
-              borderRadius: 6,
-              boxShadow: '0 2px 8px #0008',
-            }}
-          />
-          <div
-            style={{
-              background: '#222',
-              color: '#fff',
-              fontSize: 12,
-              textAlign: 'center',
-              borderRadius: 4,
-              marginTop: 2,
-              padding: '0 4px',
-            }}
-          >
-            {formatTime(thumbnailTime)}
-          </div>
-        </div>
-      )}
-      <div className="flex justify-between items-center w-full">
+      <div className="flex flex-wrap justify-between items-center w-full gap-2 mt-1">
         <div className="flex items-center gap-2">
           <button
             onClick={() =>
-              video && (video.currentTime = Math.max(0, video.currentTime - 10))
+              video && (video.currentTime = Math.max(0, video.currentTime - 5))
             }
-            className="hover:bg-[#333] rounded-full p-2 transition cursor-pointer  rotate-90"
-            title="10초 뒤로 (←)"
+            className="hover:bg-blue-900 rounded-none p-2 transition cursor-pointer rotate-90 focus:outline-none"
+            title="5초 뒤로 (←)"
           >
             <IconPrev10 />
           </button>
@@ -198,7 +61,7 @@ export default function VideoController({
             onClick={() =>
               video && (video.paused ? video.play() : video.pause())
             }
-            className="hover:bg-[#333] rounded-full p-2 transition text-xl cursor-pointer"
+            className="hover:bg-blue-900 rounded-none p-2 transition text-xl cursor-pointer focus:outline-none"
             title="재생/일시정지 (Space)"
           >
             {isPlaying ? <IconPause /> : <IconPlay />}
@@ -206,14 +69,14 @@ export default function VideoController({
           <button
             onClick={() =>
               video &&
-              (video.currentTime = Math.min(duration, video.currentTime + 10))
+              (video.currentTime = Math.min(duration, video.currentTime + 5))
             }
-            className="hover:bg-[#333] rounded-full p-2 transition cursor-pointer  rotate-90"
-            title="10초 앞으로 (→)"
+            className="hover:bg-blue-900 rounded-none p-2 transition cursor-pointer rotate-90 focus:outline-none"
+            title="5초 앞으로 (→)"
           >
             <IconNext10 />
           </button>
-          <span className="ml-4 text-xs text-gray-300">
+          <span className="ml-4 text-xs text-gray-400">
             {formatTime(current)} /{' '}
             {duration === Number.POSITIVE_INFINITY
               ? 'Encoding...'
@@ -227,7 +90,7 @@ export default function VideoController({
               video.muted = !video.muted;
               setMuted(video.muted);
             }}
-            className="hover:bg-[#333] rounded-full p-2 transition cursor-pointer"
+            className="hover:bg-blue-900 rounded-none p-2 transition cursor-pointer focus:outline-none"
             title={muted ? '음소거 해제(M)' : '음소거(M)'}
           >
             {muted || volume === 0 ? <IconVolumeMute /> : <IconVolume />}
@@ -244,22 +107,22 @@ export default function VideoController({
               video.volume = vol;
               setVolume(vol);
             }}
-            className="w-24 accent-blue-600"
+            className="w-24 accent-blue-600 h-1 bg-gray-700 rounded-none border-none focus:outline-none"
             title="볼륨 조절"
           />
         </div>
         {zoom && setZoom && (
           <div className="flex items-center gap-2">
             <button
-              className="px-2 py-1 border-white border rounded hover:bg-gray-300"
+              className="px-2 py-1 border border-white rounded-none hover:bg-blue-900 focus:outline-none"
               onClick={() => setZoom(Math.max(1, +(zoom - 0.1).toFixed(2)))}
               disabled={zoom <= 1}
             >
               -
             </button>
-            <span className="text-white">Zoom: {zoom.toFixed(1)}x</span>
+            <span className="text-white text-xs">Zoom: {zoom.toFixed(1)}x</span>
             <button
-              className="px-2 py-1 border-white border rounded hover:bg-gray-300"
+              className="px-2 py-1 border border-white rounded-none hover:bg-blue-900 focus:outline-none"
               onClick={() => setZoom(Math.min(3, +(zoom + 0.1).toFixed(2)))}
               disabled={zoom >= 10}
             >
@@ -276,7 +139,7 @@ export default function VideoController({
               video.playbackRate = newRate;
               setRate(newRate);
             }}
-            className="bg-[#222] text-white border border-gray-600 rounded px-2 py-1 focus:outline-none"
+            className="bg-neutral-900 text-white border border-gray-700 rounded-none px-2 py-1 focus:outline-none"
             title="재생 속도"
           >
             {[0.25, 0.5, 1, 1.25, 1.5, 2, 3, 4, 10].map((r) => (
@@ -291,7 +154,7 @@ export default function VideoController({
               if (document.fullscreenElement) document.exitFullscreen();
               else video.requestFullscreen();
             }}
-            className="hover:bg-[#333] rounded-full p-2 transition cursor-pointer"
+            className="hover:bg-blue-900 rounded-none p-2 transition cursor-pointer focus:outline-none"
             title="전체화면(F)"
           >
             <IconFullscreen />

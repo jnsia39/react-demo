@@ -170,7 +170,7 @@ export default function Virtualization() {
         <div className="flex flex-col md:flex-row gap-6 w-full">
           <div
             ref={parentRef}
-            className="w-full md:w-[80%] min-h-[60vh] max-h-[80vh] overflow-auto border rounded-xl bg-white shadow-lg"
+            className="w-full md:w-[80%] min-h-[60vh] max-h-[80vh] overflow-auto border bg-white"
           >
             <div
               style={{

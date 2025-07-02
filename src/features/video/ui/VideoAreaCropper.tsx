@@ -37,7 +37,7 @@ export default function VideoAreaCropper({ videoRef }: VideoAreaCropperProps) {
   return (
     <div className="flex flex-col items-center w-full gap-2">
       <button
-        className="px-4 py-2 bg-blue-600 text-white disabled:bg-gray-300 cursor-pointer hover:bg-blue-700 transition-colors"
+        className="px-4 py-2 bg-blue-600 text-white disabled:bg-gray-300 cursor-pointer hover:bg-blue-700 transition-colors border"
         onClick={handleExtract}
         disabled={!selectedArea || selectedArea.w === 0 || selectedArea.h === 0}
       >
@@ -72,7 +72,7 @@ export default function VideoAreaCropper({ videoRef }: VideoAreaCropperProps) {
               )}.png`
             : 'cropped.png'
         }
-        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+        className="px-4 py-2 bg-green-600 text-white hover:bg-green-700 transition-colors border"
       >
         이미지 다운로드
       </a>

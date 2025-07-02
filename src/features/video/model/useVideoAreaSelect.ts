@@ -97,14 +97,22 @@ export function useVideoAreaSelect({
     }
 
     if (isMoving && selectedArea) {
+      let newX = pos.x - moveOffset.x;
+      let newY = pos.y - moveOffset.y;
+
+      newX = Math.max(0, Math.min(newX, 100 - selectedArea.w));
+      newY = Math.max(0, Math.min(newY, 100 - selectedArea.h));
+
       setSelectedArea({
-        x: pos.x - moveOffset.x,
-        y: pos.y - moveOffset.y,
+        x: newX,
+        y: newY,
         w: selectedArea.w,
         h: selectedArea.h,
       });
+
       return;
     }
+
     if (!isDrawing) return;
     setCurrentPos(pos);
   };
@@ -141,7 +149,6 @@ export function useVideoAreaSelect({
       }
     : null;
   const rect = dragRect || selectedArea;
-
   const renderRect =
     rect && editMode
       ? (() => {

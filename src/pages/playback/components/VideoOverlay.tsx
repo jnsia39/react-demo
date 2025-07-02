@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import { useVideoAreaSelect } from '../../../features/video/model/useVideoAreaSelect';
 import { useVideoStore } from '@pages/playback/store/videoStore';
-import { useVideoPan } from '../../../features/video/model/useVideoPan';
 import { useVideoRect } from '@features/video/model/useVideoRect';
 import SelectedArea from '@features/video/ui/SelectedArea';
+import { useVideoZoom } from '@features/video/model/useVideoZoom';
 
 interface VideoOverlayProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -42,7 +42,7 @@ export function VideoOverlay({ videoRef }: VideoOverlayProps) {
     };
   }, [videoRect, editMode, zoom, video, video?.src]);
 
-  const { getPanMouseDown } = useVideoPan({
+  const { getPanMouseDown } = useVideoZoom({
     editMode,
     videoRect,
     overlaySize,
@@ -72,7 +72,6 @@ export function VideoOverlay({ videoRef }: VideoOverlayProps) {
           pointerEvents: 'auto',
           width: overlaySize.width,
           height: overlaySize.height,
-
           cursor: editMode ? 'crosshair' : zoom > 1 ? 'grab' : 'default',
           zIndex: 1000,
         }}

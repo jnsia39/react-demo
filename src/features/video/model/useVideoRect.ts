@@ -5,7 +5,6 @@ export function useVideoRect(video: HTMLVideoElement | null) {
 
   useEffect(() => {
     if (!video) return;
-    console.log('useVideoRect', video);
 
     const update = () => setRect(video.getBoundingClientRect());
     update();
