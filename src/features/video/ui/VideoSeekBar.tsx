@@ -25,12 +25,10 @@ export default function VideoSeekBar({
   const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
 
   const getThumbnailUrl = async (time: number, filename: string) => {
-    console.log(latestSelectedVideo.current);
     if (!filename) return;
 
     const isEncoded = await checkEncoded(filename);
     if (!isEncoded) {
-      setThumbnailUrl('');
       return;
     }
 
@@ -42,12 +40,21 @@ export default function VideoSeekBar({
 
     const res = await baseApi.get(
       `/api/v1/videos/thumbnail/${filename}?time=${formatTimeWithMs(time)}`,
-      { responseType: 'blob', signal: controller.signal }
+      {
+        responseType: 'blob',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'image/jpeg',
+        },
+      }
     );
 
-    console.log('썸네일 URL:', res.data.type);
-    const blobUrl = URL.createObjectURL(res.data);
-    setThumbnailUrl(blobUrl);
+    try {
+      const blobUrl = URL.createObjectURL(res.data);
+      setThumbnailUrl(blobUrl);
+    } catch (error) {
+      console.error('썸네일 URL 생성 실패:', error);
+    }
   };
 
   const debouncedGetThumbnailUrl = useRef(
@@ -68,6 +75,14 @@ export default function VideoSeekBar({
     video.currentTime = time;
     setCurrent(time);
   };
+
+  useEffect(() => {
+    return () => {
+      if (thumbnailUrl) {
+        URL.revokeObjectURL(thumbnailUrl);
+      }
+    };
+  }, [thumbnailUrl]);
 
   useEffect(() => {
     latestSelectedVideo.current = selectedVideo;
@@ -105,7 +120,7 @@ export default function VideoSeekBar({
         <div
           style={{
             position: 'absolute',
-            left: `calc(${thumbnailX}px - 60px)`,
+            left: `calc(${thumbnailX}px - 400px)`,
             bottom: '70px',
             pointerEvents: 'none',
             zIndex: 50,

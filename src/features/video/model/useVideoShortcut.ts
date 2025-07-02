@@ -9,7 +9,7 @@ export default function useVideoShortcut({
   const { zoom, setZoom } = useVideoStore();
 
   useEffect(() => {
-    if (!video || !video.src) return;
+    if (!video) return;
 
     const handleKeydown = (e: KeyboardEvent) => {
       if (
@@ -79,5 +79,5 @@ export default function useVideoShortcut({
     return () => {
       window.removeEventListener('keydown', handleKeydown);
     };
-  }, [video, video?.src, zoom]);
+  }, [video, zoom]);
 }

@@ -26,8 +26,4 @@ export const router = createBrowserRouter([
     element: <FileUpload />,
     errorElement: <FileUpload />,
   },
-  {
-    path: '*',
-    element: <Home />,
-  },
 ]);

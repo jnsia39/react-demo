@@ -4,6 +4,7 @@ import { useVideoStore } from '@pages/playback/store/videoStore';
 import { useVideoRect } from '@features/video/model/useVideoRect';
 import SelectedArea from '@features/video/ui/SelectedArea';
 import { useVideoZoom } from '@features/video/model/useVideoZoom';
+import { VideoEditToolbar } from '@features/video/ui/VideoEditToolbar';
 
 interface VideoOverlayProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -48,43 +49,57 @@ export function VideoOverlay({ videoRef }: VideoOverlayProps) {
     overlaySize,
   });
 
+  const handleClickVideo = () => {
+    if (videoRef.current && zoom === 1 && !editMode) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  };
+
   useEffect(() => {
     console.log('VideoOverlay mounted', video);
   }, [video]);
 
   return (
-    <div
-      ref={overlayRef}
-      style={{
-        position: 'absolute',
-        overflow: 'hidden',
-        width: overlaySize.width,
-        height: overlaySize.height,
-        top: overlaySize.top,
-        left: overlaySize.left,
-        pointerEvents: 'none',
-        zIndex: 1000,
-      }}
-    >
+    <>
+      <VideoEditToolbar />
       <div
-        className="absolute select-none"
+        ref={overlayRef}
         style={{
-          pointerEvents: 'auto',
+          position: 'absolute',
+          overflow: 'hidden',
           width: overlaySize.width,
           height: overlaySize.height,
-          cursor: editMode ? 'crosshair' : zoom > 1 ? 'grab' : 'default',
+          top: overlaySize.top,
+          left: overlaySize.left,
+          pointerEvents: 'none',
           zIndex: 1000,
         }}
-        onMouseDown={editMode ? handleMouseDown : getPanMouseDown()}
-        onMouseMove={editMode ? handleMouseMove : undefined}
-        onMouseUp={editMode ? handleMouseUp : undefined}
       >
-        <SelectedArea
-          renderRect={renderRect}
-          editMode={editMode}
-          handleResizeMouseDown={handleResizeMouseDown}
-        />
+        <div
+          className="absolute select-none"
+          style={{
+            pointerEvents: 'auto',
+            width: overlaySize.width,
+            height: overlaySize.height,
+            cursor: editMode ? 'crosshair' : zoom > 1 ? 'grab' : 'default',
+            zIndex: 1000,
+          }}
+          onClick={handleClickVideo}
+          onMouseDown={editMode ? handleMouseDown : getPanMouseDown()}
+          onMouseMove={editMode ? handleMouseMove : undefined}
+          onMouseUp={editMode ? handleMouseUp : undefined}
+        >
+          <SelectedArea
+            renderRect={renderRect}
+            editMode={editMode}
+            handleResizeMouseDown={handleResizeMouseDown}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

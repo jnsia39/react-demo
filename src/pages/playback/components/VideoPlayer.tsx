@@ -10,11 +10,21 @@ interface VideoPlayerProps {
 }
 
 export function VideoPlayer({ videoRef, selectedVideo }: VideoPlayerProps) {
-  const { setEditMode, panOffset, zoom, setZoom } = useVideoStore();
+  const { setEditMode, panOffset, zoom, setZoom, editMode } = useVideoStore();
 
   useVideoShortcut({
     video: videoRef.current,
   });
+
+  const handleClickVideo = () => {
+    if (videoRef.current && zoom === 1 && !editMode) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  };
 
   useEffect(() => {
     setEditMode(false);
@@ -33,6 +43,7 @@ export function VideoPlayer({ videoRef, selectedVideo }: VideoPlayerProps) {
             transition: 'transform 0.2s',
             transformOrigin: 'center',
           }}
+          onClick={handleClickVideo}
         />
       </div>
       <VideoController
