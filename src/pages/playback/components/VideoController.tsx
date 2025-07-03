@@ -123,7 +123,7 @@ export default function VideoController({
             <span className="text-white text-xs">Zoom: {zoom.toFixed(1)}x</span>
             <button
               className="px-2 py-1 border border-white rounded-none hover:bg-blue-900 focus:outline-none"
-              onClick={() => setZoom(Math.min(3, +(zoom + 0.1).toFixed(2)))}
+              onClick={() => setZoom(Math.min(10, +(zoom + 0.1).toFixed(2)))}
               disabled={zoom >= 10}
             >
               +

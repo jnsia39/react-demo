@@ -41,7 +41,7 @@ export function VideoOverlay({ videoRef }: VideoOverlayProps) {
       top: videoRect.top,
       left: videoRect.left,
     };
-  }, [videoRect, editMode, zoom, video, video?.src]);
+  }, [videoRect, editMode, zoom, video]);
 
   const { getPanMouseDown } = useVideoZoom({
     editMode,
@@ -60,8 +60,13 @@ export function VideoOverlay({ videoRef }: VideoOverlayProps) {
   };
 
   useEffect(() => {
-    console.log('VideoOverlay mounted', video);
-  }, [video]);
+    setSelectedArea({
+      x: 0,
+      y: 0,
+      w: 0,
+      h: 0,
+    });
+  }, [editMode]);
 
   return (
     <>
@@ -85,8 +90,8 @@ export function VideoOverlay({ videoRef }: VideoOverlayProps) {
             pointerEvents: 'auto',
             width: overlaySize.width,
             height: overlaySize.height,
+            inset: 0,
             cursor: editMode ? 'crosshair' : zoom > 1 ? 'grab' : 'default',
-            zIndex: 1000,
           }}
           onClick={handleClickVideo}
           onMouseDown={editMode ? handleMouseDown : getPanMouseDown()}

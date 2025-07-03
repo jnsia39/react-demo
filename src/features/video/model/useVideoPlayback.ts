@@ -25,6 +25,16 @@ export default function useVideoPlayback({
     let encodingStarted = false;
     let cleanup: (() => void) | undefined;
 
+    // effect 진입 시 인코딩 파일 존재하면 바로 실행
+    checkEncoded(selectedVideo).then((exists) => {
+      if (exists) {
+        setupPlayer();
+      } else {
+        startEncoding(selectedVideo);
+        video.addEventListener('play', handlePlay);
+      }
+    });
+
     const setupPlayer = () => {
       if (Hls.isSupported() && source.endsWith('.m3u8')) {
         const noCacheSource = `${source}${
@@ -51,6 +61,7 @@ export default function useVideoPlayback({
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           video.play();
         });
+
         cleanup = () => {
           hls && hls.destroy();
         };
@@ -91,16 +102,6 @@ export default function useVideoPlayback({
         };
       }
     };
-
-    // effect 진입 시 인코딩 파일 존재하면 바로 실행
-    checkEncoded(selectedVideo).then((exists) => {
-      if (exists) {
-        setupPlayer();
-      } else {
-        // 없으면 play 이벤트에서 인코딩 후 실행
-        video.addEventListener('play', handlePlay);
-      }
-    });
 
     // play 이벤트 핸들러 (인코딩 후 플레이어 세팅)
     async function handlePlay() {

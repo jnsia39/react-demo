@@ -17,13 +17,12 @@ export default function SelectedArea({
 
   return (
     <div
-      className="absolute border-2 border-blue-500 bg-blue-200/10"
+      className="absolute border-2 border-blue-500"
       style={{
         left: renderRect.x,
         top: renderRect.y,
         width: renderRect.w,
         height: renderRect.h,
-        zIndex: 10,
         boxSizing: 'border-box',
       }}
     >
