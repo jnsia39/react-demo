@@ -153,7 +153,9 @@ export default function GoogleMapComponent({
     if (selectedMarker) {
       setMarkers((prev) =>
         prev.map((marker) =>
-          marker.id === selectedMarker.id ? { ...marker, memo: editingMemo } : marker
+          marker.id === selectedMarker.id
+            ? { ...marker, memo: editingMemo }
+            : marker
         )
       );
       setSelectedMarker((prev) =>
@@ -176,9 +178,7 @@ export default function GoogleMapComponent({
 
   const updateMarkerMemo = (id: string, memo: string) => {
     setMarkers((prev) =>
-      prev.map((marker) =>
-        marker.id === id ? { ...marker, memo } : marker
-      )
+      prev.map((marker) => (marker.id === id ? { ...marker, memo } : marker))
     );
     setSelectedMarker((prev) =>
       prev && prev.id === id ? { ...prev, memo } : prev
@@ -512,36 +512,28 @@ export default function GoogleMapComponent({
                 {/* 메모 입력 필드 */}
                 <div
                   style={{
-                    padding: '8px',
-                    backgroundColor: '#f3f4f6',
-                    borderRadius: '4px',
+                    padding: '12px',
+                    backgroundColor: '#fffbeb',
+                    borderRadius: '6px',
                     marginBottom: '10px',
+                    border: '2px solid #fbbf24',
                   }}
                 >
-                  <div style={{
-                    fontWeight: 'bold',
-                    marginBottom: '6px',
-                    color: '#374151',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}>
+                  <div
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '6px',
+                      color: '#374151',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
                     <span>📝 메모</span>
-                    {!isEditingMemo && selectedMarker.memo && (
-                      <button
-                        onClick={startMemoEdit}
-                        style={{
-                          padding: '2px 8px',
-                          fontSize: '12px',
-                          backgroundColor: '#3b82f6',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '3px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        수정
-                      </button>
+                    {!isEditingMemo && (
+                      <span style={{ fontSize: '11px', color: '#6b7280' }}>
+                        (클릭하여 편집)
+                      </span>
                     )}
                   </div>
                   {isEditingMemo ? (
@@ -563,7 +555,13 @@ export default function GoogleMapComponent({
                         }}
                         autoFocus
                       />
-                      <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+                      <div
+                        style={{
+                          marginTop: '8px',
+                          display: 'flex',
+                          gap: '8px',
+                        }}
+                      >
                         <button
                           onClick={saveMemo}
                           style={{
@@ -598,19 +596,20 @@ export default function GoogleMapComponent({
                     </>
                   ) : (
                     <div
-                      onClick={() => !selectedMarker.memo && startMemoEdit()}
+                      onClick={() => startMemoEdit()}
                       style={{
-                        minHeight: selectedMarker.memo ? 'auto' : '40px',
+                        minHeight: '40px',
                         padding: '8px',
                         backgroundColor: 'white',
                         border: '1px solid #d1d5db',
                         borderRadius: '4px',
                         fontSize: '14px',
                         color: selectedMarker.memo ? '#111827' : '#9ca3af',
-                        cursor: !selectedMarker.memo ? 'pointer' : 'default',
+                        cursor: 'pointer',
                         whiteSpace: 'pre-wrap',
                         wordBreak: 'break-word',
                       }}
+                      title="클릭하여 편집"
                     >
                       {selectedMarker.memo || '클릭하여 메모를 추가하세요...'}
                     </div>
