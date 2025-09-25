@@ -16,6 +16,19 @@ export const cloudApi = axios.create({
     }),
 });
 
+export const limeApi = axios.create({
+  baseURL: import.meta.env.VITE_LIME_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
+  paramsSerializer: (params) =>
+    qs.stringify(params, {
+      arrayFormat: 'repeat',
+      skipNulls: true,
+    }),
+});
+
 export const baseApi = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
   headers: {
