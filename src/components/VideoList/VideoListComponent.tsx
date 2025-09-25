@@ -36,7 +36,7 @@ export default function VideoListComponent({
 
       for (const filename of defaultVideos) {
         try {
-          const url = `/public/${filename}`;
+          const url = `/${filename}`;
           const response = await fetch(url, { method: 'HEAD' });
 
           if (response.ok) {
@@ -200,17 +200,23 @@ export default function VideoListComponent({
     [getVideoDuration, generateThumbnail]
   );
 
-  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-  }, []);
+  const handleDragOver = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+    },
+    []
+  );
 
-  const handleDeleteVideo = useCallback((id: string) => {
-    setVideos((prev) => prev.filter((video) => video.id !== id));
-    if (selectedVideo?.id === id) {
-      setSelectedVideo(null);
-      setIsPlaying(false);
-    }
-  }, [selectedVideo]);
+  const handleDeleteVideo = useCallback(
+    (id: string) => {
+      setVideos((prev) => prev.filter((video) => video.id !== id));
+      if (selectedVideo?.id === id) {
+        setSelectedVideo(null);
+        setIsPlaying(false);
+      }
+    },
+    [selectedVideo]
+  );
 
   const handleVideoClick = useCallback(
     (video: VideoFile) => {
@@ -226,17 +232,6 @@ export default function VideoListComponent({
     },
     [onVideoSelect]
   );
-
-  const handlePlayPause = useCallback(() => {
-    if (videoPlayerRef.current) {
-      if (isPlaying) {
-        videoPlayerRef.current.pause();
-      } else {
-        videoPlayerRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  }, [isPlaying]);
 
   return (
     <div
@@ -351,7 +346,9 @@ export default function VideoListComponent({
             </p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+          >
             <div
               style={{
                 textAlign: 'center',
@@ -397,8 +394,11 @@ export default function VideoListComponent({
                   display: 'flex',
                   alignItems: 'center',
                   padding: '12px',
-                  backgroundColor: selectedVideo?.id === video.id ? '#EBF8FF' : 'white',
-                  border: `1px solid ${selectedVideo?.id === video.id ? '#3B82F6' : '#e5e7eb'}`,
+                  backgroundColor:
+                    selectedVideo?.id === video.id ? '#EBF8FF' : 'white',
+                  border: `1px solid ${
+                    selectedVideo?.id === video.id ? '#3B82F6' : '#e5e7eb'
+                  }`,
                   borderRadius: '8px',
                   cursor: 'grab',
                   transition: 'all 0.2s ease',
@@ -535,20 +535,6 @@ export default function VideoListComponent({
               onEnded={() => setIsPlaying(false)}
             />
           </div>
-          <button
-            onClick={handlePlayPause}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#10B981',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '14px',
-            }}
-          >
-            {isPlaying ? '일시정지' : '재생'}
-          </button>
         </div>
       )}
     </div>

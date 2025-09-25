@@ -16,6 +16,7 @@ export interface MarkerData {
   timestamp?: Date;
   videos: VideoInfo[];
   type?: 'default' | 'important' | 'warning' | 'info';
+  memo?: string;
 }
 
 export interface RoutePoint {

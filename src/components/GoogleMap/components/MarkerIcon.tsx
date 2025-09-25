@@ -107,64 +107,46 @@ export const MarkerIcon: React.FC<MarkerIconProps> = ({
       <circle cx="24" cy="20" r="7" fill="url(#innerGradient)" />
       <circle cx="24" cy="20" r="5" fill={centerColor} />
 
-      {/* 중앙 하이라이트 */}
-      <circle cx="22" cy="18" r="2" fill="white" opacity="0.7" />
-      <circle cx="21.5" cy="17.5" r="1" fill="white" opacity="0.9" />
-
-      {/* 연결 순서 배지 */}
-      {isConnected && connectOrder > 0 && (
-        <g>
-          <circle
-            cx="40"
-            cy="12"
-            r="9"
-            fill="#38A169"
-            stroke="white"
-            strokeWidth="3"
-            filter="url(#dropshadow)"
-          />
-          <circle cx="40" cy="12" r="7" fill="#48BB78" />
-          <circle cx="40" cy="12" r="5" fill="#68D391" />
-          <text
-            x="40"
-            y="16"
-            textAnchor="middle"
-            fill="white"
-            fontSize="12"
-            fontWeight="bold"
-            fontFamily="Arial, sans-serif"
-          >
-            {connectOrder}
-          </text>
-        </g>
+      {/* 중앙 하이라이트 (순서가 없을 때만) */}
+      {!isConnected && !isInEditingRoute && (
+        <>
+          <circle cx="22" cy="18" r="2" fill="white" opacity="0.7" />
+          <circle cx="21.5" cy="17.5" r="1" fill="white" opacity="0.9" />
+        </>
       )}
 
-      {/* 편집 중 순서 배지 */}
+      {/* 마커 중심부에 연결 순서 표시 */}
+      {isConnected && connectOrder > 0 && (
+        <text
+          x="24"
+          y="25"
+          textAnchor="middle"
+          fill="white"
+          fontSize="16"
+          fontWeight="bold"
+          fontFamily="Arial, sans-serif"
+          stroke="#2F855A"
+          strokeWidth="0.5"
+        >
+          {connectOrder}
+        </text>
+      )}
+
+      {/* 마커 중심부에 편집 중 순서 표시 */}
       {isInEditingRoute && editOrder > 0 && (
-        <g>
-          <circle
-            cx="40"
-            cy="12"
-            r="9"
-            fill="#D69E2E"
-            stroke="white"
-            strokeWidth="3"
-            filter="url(#dropshadow)"
-          />
-          <circle cx="40" cy="12" r="7" fill="#ECC94B" />
-          <circle cx="40" cy="12" r="5" fill="#F6E05E" />
-          <text
-            x="40"
-            y="16"
-            textAnchor="middle"
-            fill="white"
-            fontSize="12"
-            fontWeight="bold"
-            fontFamily="Arial, sans-serif"
-          >
-            {editOrder}
-          </text>
-        </g>
+        <text
+          x="24"
+          y="25"
+          textAnchor="middle"
+          fill="white"
+          fontSize="16"
+          fontWeight="bold"
+          fontFamily="Arial, sans-serif"
+          stroke="#B7791F"
+          strokeWidth="0.5"
+        >
+          {editOrder}
+        </text>
       )}
 
       {/* 비디오 개수 배지 */}

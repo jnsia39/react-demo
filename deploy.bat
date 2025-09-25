@@ -3,7 +3,7 @@ set CONTAINER_NAME=demo-frontend
 
 docker build -t %IMAGE_NAME% .
 
-docker stop %CONTAINER_NAME% || echo "Container %CONTAINER_NAME% not running."
-docker rm %CONTAINER_NAME% || echo "Container %CONTAINER_NAME% not found."
+docker stop %CONTAINER_NAME% 2>nul || echo >nul
+docker rm %CONTAINER_NAME% 2>nul || echo >nul
 
-docker run -d --name %CONTAINER_NAME% -p 5460:5173 %IMAGE_NAME%
+docker run -d --name %CONTAINER_NAME% -p 5460:80 %IMAGE_NAME%

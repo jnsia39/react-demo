@@ -1,5 +1,3 @@
-import { renderToStaticMarkup } from 'react-dom/server';
-import { MarkerIcon } from '../components/MarkerIcon';
 import { MarkerData } from '../types';
 
 export const createMarkerIcon = (
@@ -33,7 +31,9 @@ export const createMarkerIcon = (
 
   // SVG 문자열 직접 생성 (단순한 디자인)
   const svgString = `
-    <svg width="${size}" height="${size + 8}" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
+    <svg width="${size}" height="${
+    size + 8
+  }" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="1" dy="2" stdDeviation="1.5" flood-opacity="0.3"/>
@@ -51,20 +51,32 @@ export const createMarkerIcon = (
       <circle cx="16" cy="12" r="4" fill="white"/>
       <circle cx="16" cy="12" r="2.5" fill="${strokeColor}"/>
 
-      ${isConnected && connectOrder > 0 ? `
+      ${
+        isConnected && connectOrder > 0
+          ? `
         <circle cx="26" cy="6" r="5" fill="#2ED573" stroke="white" stroke-width="2" filter="url(#shadow)"/>
         <text x="26" y="9" text-anchor="middle" fill="white" font-size="9" font-weight="bold">${connectOrder}</text>
-      ` : ''}
+      `
+          : ''
+      }
 
-      ${isInEditingRoute && editOrder > 0 ? `
+      ${
+        isInEditingRoute && editOrder > 0
+          ? `
         <circle cx="26" cy="6" r="5" fill="#FFA726" stroke="white" stroke-width="2" filter="url(#shadow)"/>
         <text x="26" y="9" text-anchor="middle" fill="white" font-size="9" font-weight="bold">${editOrder}</text>
-      ` : ''}
+      `
+          : ''
+      }
 
-      ${hasVideos && !isConnected && !isInEditingRoute ? `
+      ${
+        hasVideos && !isConnected && !isInEditingRoute
+          ? `
         <circle cx="26" cy="6" r="5" fill="#4FC3F7" stroke="white" stroke-width="2" filter="url(#shadow)"/>
         <text x="26" y="9" text-anchor="middle" fill="white" font-size="7">${marker.videos.length}</text>
-      ` : ''}
+      `
+          : ''
+      }
     </svg>
   `;
 

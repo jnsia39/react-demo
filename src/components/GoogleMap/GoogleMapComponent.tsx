@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import {
   GoogleMap,
   LoadScript,
@@ -9,10 +9,10 @@ import {
   OverlayView,
 } from '@react-google-maps/api';
 import MapControls from './components/MapControls';
-import { MarkerData, VideoInfo, RoutePoint } from './types';
+import { MarkerData, VideoInfo } from './types';
 import { createMarkerIcon } from './utils/markerIconHelper';
 
-const libraries: ('drawing' | 'places' | 'geometry')[] = ['drawing'];
+const libraries: ('places' | 'geometry')[] = ['places', 'geometry'];
 
 const mapContainerStyle = {
   width: '100%',
@@ -20,8 +20,8 @@ const mapContainerStyle = {
 };
 
 const center = {
-  lat: 37.5665,
-  lng: 126.978,
+  lat: 37.402,
+  lng: 127.108,
 };
 
 const options = {
@@ -41,9 +41,7 @@ export default function GoogleMapComponent({
 }: GoogleMapComponentProps) {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null);
-  const [routePoints, setRoutePoints] = useState<RoutePoint[]>([]);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
-  const [isMarkerMode, setIsMarkerMode] = useState(false);
   const [dragOverMarkerId, setDragOverMarkerId] = useState<string | null>(null);
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null);
   const markerRefs = useRef<{ [key: string]: google.maps.Marker }>({});
@@ -53,32 +51,15 @@ export default function GoogleMapComponent({
   const [connectedMarkers, setConnectedMarkers] = useState<string[]>([]);
   const [markerRoutes, setMarkerRoutes] = useState<string[][]>([]);
 
-  // 편집 모드 상태
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editingMarker, setEditingMarker] = useState<MarkerData | null>(null);
-
   // 경로 편집 모드 상태
   const [editingRouteIndex, setEditingRouteIndex] = useState<number | null>(
     null
   );
   const [editingRoute, setEditingRoute] = useState<string[]>([]);
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-  };
-
-  const formatDuration = (seconds?: number): string => {
-    if (!seconds) return '--:--';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, '0')}:${secs
-      .toString()
-      .padStart(2, '0')}`;
-  };
+  // 메모 편집 상태
+  const [editingMemo, setEditingMemo] = useState<string>('');
+  const [isEditingMemo, setIsEditingMemo] = useState(false);
 
   const getAddressFromCoordinates = async (
     lat: number,
@@ -108,18 +89,11 @@ export default function GoogleMapComponent({
         return;
       }
 
-      // 마커 모드일 때만 새 마커 생성
-      if (e.latLng && isMarkerMode && !isDrawingMode) {
+      // 마커 모드일 때만 새 마커 생성 (연결 모드가 아닐 때)
+      if (e.latLng && !isDrawingMode && !isConnectMode) {
         const position = {
           lat: e.latLng.lat(),
           lng: e.latLng.lng(),
-        };
-
-        const markerTitles = {
-          default: '일반 핀',
-          important: '중요 위치',
-          warning: '주의 구역',
-          info: '정보 지점',
         };
 
         // 주소 가져오기
@@ -143,7 +117,7 @@ export default function GoogleMapComponent({
         setMarkers((prev) => [...prev, newMarker]);
       }
     },
-    [markers, isDrawingMode, isMarkerMode, selectedMarker]
+    [markers, isDrawingMode, selectedMarker, isConnectMode]
   );
 
   const handleMarkerClick = (marker: MarkerData) => {
@@ -165,59 +139,50 @@ export default function GoogleMapComponent({
     } else {
       // 일반 모드일 때는 편집 모드로 전환
       setSelectedMarker(marker);
-      setEditingMarker({ ...marker });
-      setIsEditMode(true);
+      setEditingMemo(marker.memo || '');
+      setIsEditingMemo(false);
     }
   };
 
   const handleInfoWindowClose = () => {
     setSelectedMarker(null);
-    setIsEditMode(false);
-    setEditingMarker(null);
+    setIsEditingMemo(false);
   };
 
-  const saveMarkerEdits = () => {
-    if (editingMarker && selectedMarker) {
-      updateMarkerInfo(
-        editingMarker.id,
-        editingMarker.title,
-        editingMarker.description
-      );
-      setIsEditMode(false);
-    }
-  };
-
-  const cancelMarkerEdits = () => {
+  const saveMemo = () => {
     if (selectedMarker) {
-      setEditingMarker({ ...selectedMarker });
-      setIsEditMode(false);
-    }
-  };
-
-  const updateMarkerInfo = async (
-    id: string,
-    title: string,
-    description: string
-  ) => {
-    const marker = markers.find((m) => m.id === id);
-    if (marker) {
-      // 위치 기반으로 주소 업데이트
-      const address = await getAddressFromCoordinates(
-        marker.position.lat,
-        marker.position.lng
-      );
-
       setMarkers((prev) =>
-        prev.map((m) =>
-          m.id === id ? { ...m, title, description, address } : m
+        prev.map((marker) =>
+          marker.id === selectedMarker.id ? { ...marker, memo: editingMemo } : marker
         )
       );
-      if (selectedMarker?.id === id) {
-        setSelectedMarker((prev) =>
-          prev ? { ...prev, title, description, address } : null
-        );
-      }
+      setSelectedMarker((prev) =>
+        prev ? { ...prev, memo: editingMemo } : prev
+      );
+      setIsEditingMemo(false);
     }
+  };
+
+  const cancelMemoEdit = () => {
+    if (selectedMarker) {
+      setEditingMemo(selectedMarker.memo || '');
+      setIsEditingMemo(false);
+    }
+  };
+
+  const startMemoEdit = () => {
+    setIsEditingMemo(true);
+  };
+
+  const updateMarkerMemo = (id: string, memo: string) => {
+    setMarkers((prev) =>
+      prev.map((marker) =>
+        marker.id === id ? { ...marker, memo } : marker
+      )
+    );
+    setSelectedMarker((prev) =>
+      prev && prev.id === id ? { ...prev, memo } : prev
+    );
   };
 
   const deleteMarker = (id: string) => {
@@ -359,19 +324,8 @@ export default function GoogleMapComponent({
     markerRefs.current[markerId] = marker;
   };
 
-  const clearRoute = () => {
-    setRoutePoints([]);
-  };
-
-  const toggleMarkerMode = () => {
-    if (isDrawingMode) setIsDrawingMode(false);
-    if (isConnectMode) setIsConnectMode(false);
-    setIsMarkerMode(!isMarkerMode);
-  };
-
   const toggleConnectMode = () => {
     if (isDrawingMode) setIsDrawingMode(false);
-    if (isMarkerMode) setIsMarkerMode(false);
     setIsConnectMode(!isConnectMode);
     if (isConnectMode) {
       // 연결 모드를 끌 때 선택된 마커들 초기화
@@ -440,21 +394,14 @@ export default function GoogleMapComponent({
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <MapControls
-        isMarkerMode={isMarkerMode}
         isConnectMode={isConnectMode}
-        isConnectingMarkers={isConnectMode}
         connectedMarkersCount={connectedMarkers.length}
         editingRouteIndex={editingRouteIndex}
-        markersCount={markers.length}
-        routePointsCount={routePoints.length}
         markerRoutesCount={markerRoutes.length}
         markerRoutes={markerRoutes}
-        editingRoute={editingRoute}
-        onToggleMarkerMode={toggleMarkerMode}
         onToggleConnectMode={toggleConnectMode}
         onCreateRoute={createRouteFromConnectedMarkers}
         onCancelConnection={() => setConnectedMarkers([])}
-        onClearRoute={clearRoute}
         onStartEditRoute={startEditRoute}
         onSaveEditedRoute={saveEditedRoute}
         onCancelEditRoute={cancelEditRoute}
@@ -469,11 +416,11 @@ export default function GoogleMapComponent({
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           center={center}
-          zoom={13}
+          zoom={17}
           onClick={handleMapClick}
           options={{
             ...options,
-            draggableCursor: isMarkerMode ? 'crosshair' : undefined,
+            draggableCursor: 'crosshair',
             draggingCursor: 'grabbing',
             styles: [
               {
@@ -541,166 +488,134 @@ export default function GoogleMapComponent({
             <InfoWindow
               position={selectedMarker.position}
               onCloseClick={handleInfoWindowClose}
+              options={{
+                headerDisabled: true,
+              }}
             >
               <div
                 style={{
-                  padding: '15px',
                   minWidth: '280px',
                   maxWidth: '400px',
                 }}
               >
-                {isEditMode ? (
-                  <>
-                    <div
-                      style={{
-                        marginBottom: '8px',
-                        padding: '6px 10px',
-                        backgroundColor: '#fef3c7',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        color: '#92400e',
-                        fontWeight: '500',
-                      }}
-                    >
-                      ✏️ 편집 모드
-                    </div>
-                    <input
-                      type="text"
-                      value={editingMarker?.title || ''}
-                      onChange={(e) =>
-                        setEditingMarker((prev) =>
-                          prev ? { ...prev, title: e.target.value } : null
-                        )
-                      }
-                      style={{
-                        width: '100%',
-                        marginBottom: '10px',
-                        padding: '10px',
-                        border: '2px solid #fbbf24',
-                        backgroundColor: '#fffbeb',
-                        borderRadius: '6px',
-                        fontWeight: 'bold',
-                        fontSize: '15px',
-                        outline: 'none',
-                      }}
-                      placeholder="제목을 입력하세요"
-                    />
-                    <textarea
-                      value={editingMarker?.description || ''}
-                      onChange={(e) =>
-                        setEditingMarker((prev) =>
-                          prev ? { ...prev, description: e.target.value } : null
-                        )
-                      }
-                      rows={3}
-                      style={{
-                        width: '100%',
-                        marginBottom: '10px',
-                        padding: '10px',
-                        border: '2px solid #fbbf24',
-                        backgroundColor: '#fffbeb',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        outline: 'none',
-                        resize: 'none',
-                      }}
-                      placeholder="설명을 입력하세요"
-                    />
-                    <div
-                      style={{
-                        display: 'flex',
-                        gap: '8px',
-                        marginBottom: '10px',
-                      }}
-                    >
+                <div
+                  style={{
+                    marginBottom: '10px',
+                    padding: '8px',
+                    backgroundColor: '#f9fafb',
+                    borderRadius: '4px',
+                  }}
+                >
+                  {selectedMarker.description}
+                </div>
+
+                {/* 메모 입력 필드 */}
+                <div
+                  style={{
+                    padding: '8px',
+                    backgroundColor: '#f3f4f6',
+                    borderRadius: '4px',
+                    marginBottom: '10px',
+                  }}
+                >
+                  <div style={{
+                    fontWeight: 'bold',
+                    marginBottom: '6px',
+                    color: '#374151',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span>📝 메모</span>
+                    {!isEditingMemo && selectedMarker.memo && (
                       <button
-                        onClick={saveMarkerEdits}
+                        onClick={startMemoEdit}
                         style={{
-                          flex: 1,
-                          padding: '8px',
-                          backgroundColor: '#10b981',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontWeight: 'bold',
-                          fontSize: '14px',
-                        }}
-                      >
-                        ✅ 저장
-                      </button>
-                      <button
-                        onClick={cancelMarkerEdits}
-                        style={{
-                          flex: 1,
-                          padding: '8px',
-                          backgroundColor: '#6b7280',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontWeight: 'bold',
-                          fontSize: '14px',
-                        }}
-                      >
-                        ❌ 취소
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '10px',
-                      }}
-                    >
-                      <h3
-                        style={{
-                          margin: 0,
-                          fontSize: '16px',
-                          fontWeight: 'bold',
-                          color: '#333',
-                        }}
-                      >
-                        {selectedMarker.title}
-                      </h3>
-                      <button
-                        onClick={() => {
-                          setIsEditMode(true);
-                          setEditingMarker({ ...selectedMarker });
-                        }}
-                        style={{
-                          padding: '4px 8px',
+                          padding: '2px 8px',
+                          fontSize: '12px',
                           backgroundColor: '#3b82f6',
                           color: 'white',
                           border: 'none',
                           borderRadius: '3px',
                           cursor: 'pointer',
-                          fontSize: '12px',
-                          fontWeight: '500',
                         }}
                       >
-                        ✏️ 편집
+                        수정
                       </button>
-                    </div>
+                    )}
+                  </div>
+                  {isEditingMemo ? (
+                    <>
+                      <textarea
+                        value={editingMemo}
+                        onChange={(e) => setEditingMemo(e.target.value)}
+                        placeholder="메모를 입력하세요..."
+                        style={{
+                          width: '100%',
+                          minHeight: '80px',
+                          padding: '8px',
+                          border: '2px solid #3b82f6',
+                          borderRadius: '4px',
+                          fontSize: '14px',
+                          resize: 'vertical',
+                          fontFamily: 'inherit',
+                          outline: 'none',
+                        }}
+                        autoFocus
+                      />
+                      <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={saveMemo}
+                          style={{
+                            padding: '6px 12px',
+                            backgroundColor: '#10b981',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                          }}
+                        >
+                          저장
+                        </button>
+                        <button
+                          onClick={cancelMemoEdit}
+                          style={{
+                            padding: '6px 12px',
+                            backgroundColor: '#6b7280',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: '500',
+                          }}
+                        >
+                          취소
+                        </button>
+                      </div>
+                    </>
+                  ) : (
                     <div
+                      onClick={() => !selectedMarker.memo && startMemoEdit()}
                       style={{
-                        marginBottom: '10px',
+                        minHeight: selectedMarker.memo ? 'auto' : '40px',
                         padding: '8px',
-                        backgroundColor: '#f9fafb',
+                        backgroundColor: 'white',
+                        border: '1px solid #d1d5db',
                         borderRadius: '4px',
-                        fontSize: '13px',
-                        color: '#4b5563',
-                        lineHeight: '1.5',
+                        fontSize: '14px',
+                        color: selectedMarker.memo ? '#111827' : '#9ca3af',
+                        cursor: !selectedMarker.memo ? 'pointer' : 'default',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
                       }}
                     >
-                      {selectedMarker.description}
+                      {selectedMarker.memo || '클릭하여 메모를 추가하세요...'}
                     </div>
-                  </>
-                )}
+                  )}
+                </div>
 
                 {selectedMarker.address && (
                   <div
@@ -709,12 +624,11 @@ export default function GoogleMapComponent({
                       backgroundColor: '#e3f2fd',
                       borderRadius: '4px',
                       marginBottom: '10px',
-                      fontSize: '12px',
                       color: '#1976d2',
                     }}
                   >
                     <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
-                      📍 주소
+                      주소
                     </div>
                     <div>{selectedMarker.address}</div>
                   </div>
@@ -733,7 +647,6 @@ export default function GoogleMapComponent({
                     <h4
                       style={{
                         margin: '0 0 8px 0',
-                        fontSize: '13px',
                         color: '#333',
                       }}
                     >
@@ -769,18 +682,12 @@ export default function GoogleMapComponent({
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div
                               style={{
-                                fontSize: '11px',
-                                fontWeight: '500',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap',
                               }}
                             >
                               {video.name}
-                            </div>
-                            <div style={{ fontSize: '10px', color: '#666' }}>
-                              {formatDuration(video.duration)} •{' '}
-                              {formatFileSize(video.size)}
                             </div>
                           </div>
                           <button
@@ -806,45 +713,21 @@ export default function GoogleMapComponent({
                   </div>
                 )}
 
-                {!isEditMode && (
-                  <>
-                    <div
-                      style={{
-                        fontSize: '11px',
-                        color: '#666',
-                        marginBottom: '5px',
-                      }}
-                    >
-                      {selectedMarker.timestamp?.toLocaleString()}
-                    </div>
-                    <button
-                      onClick={() => deleteMarker(selectedMarker.id)}
-                      style={{
-                        padding: '5px 10px',
-                        backgroundColor: '#ff6b6b',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '3px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      마커 삭제
-                    </button>
-                  </>
-                )}
+                <button
+                  onClick={() => deleteMarker(selectedMarker.id)}
+                  style={{
+                    padding: '5px 10px',
+                    backgroundColor: '#ff6b6b',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '3px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  마커 삭제
+                </button>
               </div>
             </InfoWindow>
-          )}
-
-          {routePoints.length > 1 && (
-            <Polyline
-              path={routePoints}
-              options={{
-                strokeColor: '#FF0000',
-                strokeOpacity: 0.8,
-                strokeWeight: 3,
-              }}
-            />
           )}
 
           {/* 연결 중인 마커들의 임시 경로 표시 */}

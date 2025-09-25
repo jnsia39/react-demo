@@ -1,21 +1,12 @@
-import React from 'react';
-
 interface MapControlsProps {
-  isMarkerMode: boolean;
   isConnectMode: boolean;
-  isConnectingMarkers: boolean;
   connectedMarkersCount: number;
   editingRouteIndex: number | null;
-  markersCount: number;
-  routePointsCount: number;
   markerRoutesCount: number;
   markerRoutes: string[][];
-  editingRoute: string[];
-  onToggleMarkerMode: () => void;
   onToggleConnectMode: () => void;
   onCreateRoute: () => void;
   onCancelConnection: () => void;
-  onClearRoute: () => void;
   onStartEditRoute: (index: number) => void;
   onSaveEditedRoute: () => void;
   onCancelEditRoute: () => void;
@@ -24,21 +15,14 @@ interface MapControlsProps {
 }
 
 export default function MapControls({
-  isMarkerMode,
   isConnectMode,
-  isConnectingMarkers,
   connectedMarkersCount,
   editingRouteIndex,
-  markersCount,
-  routePointsCount,
   markerRoutesCount,
   markerRoutes,
-  editingRoute,
-  onToggleMarkerMode,
   onToggleConnectMode,
   onCreateRoute,
   onCancelConnection,
-  onClearRoute,
   onStartEditRoute,
   onSaveEditedRoute,
   onCancelEditRoute,
@@ -74,26 +58,6 @@ export default function MapControls({
 
       {/* Main Controls */}
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-        <button
-          onClick={onToggleMarkerMode}
-          style={{
-            padding: '10px 16px',
-            backgroundColor: isMarkerMode ? '#10B981' : '#374151',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            boxShadow: isMarkerMode
-              ? '0 4px 12px rgba(16, 185, 129, 0.4)'
-              : '0 2px 4px rgba(0, 0, 0, 0.1)',
-            transition: 'all 0.2s ease',
-          }}
-        >
-          📍 마커 모드 {isMarkerMode ? 'ON' : 'OFF'}
-        </button>
-
         <button
           onClick={onToggleConnectMode}
           style={{
@@ -189,18 +153,32 @@ export default function MapControls({
                 alignItems: 'center',
                 gap: '12px',
                 padding: '12px 16px',
-                backgroundColor: editingRouteIndex === index ? '#FEF3C7' : '#F8FAFC',
+                backgroundColor:
+                  editingRouteIndex === index ? '#FEF3C7' : '#F8FAFC',
                 borderRadius: '8px',
-                border: editingRouteIndex === index
-                  ? '2px solid #F59E0B'
-                  : '1px solid #E2E8F0',
+                border:
+                  editingRouteIndex === index
+                    ? '2px solid #F59E0B'
+                    : '1px solid #E2E8F0',
               }}
             >
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '14px', fontWeight: '500', color: '#111827' }}>
+                <div
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#111827',
+                  }}
+                >
                   🛤️ 경로 {index + 1}
                 </div>
-                <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
+                <div
+                  style={{
+                    fontSize: '12px',
+                    color: '#6B7280',
+                    marginTop: '2px',
+                  }}
+                >
                   {route.length}개 마커
                   {editingRouteIndex === index && ' • 편집 중'}
                 </div>
