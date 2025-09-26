@@ -10,13 +10,7 @@ export interface VideoInfo {
 export interface MarkerData {
   id: string;
   position: google.maps.LatLngLiteral;
-  title: string;
-  description: string;
-  address?: string;
-  timestamp?: Date;
   videos: VideoInfo[];
-  type?: 'default' | 'important' | 'warning' | 'info';
-  memo?: string;
 }
 
 export interface RoutePoint {

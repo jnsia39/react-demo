@@ -1,218 +1,118 @@
 import React from 'react';
-import { MarkerData } from '../types';
 
 interface MarkerIconProps {
-  marker: MarkerData;
-  isHovered: boolean;
-  isConnected: boolean;
-  connectOrder: number;
-  isInEditingRoute: boolean;
-  editOrder: number;
+  size?: number;
+  fillColor?: string;
+  strokeColor?: string;
+  strokeWidth?: number;
+  isConnected?: boolean;
+  connectOrder?: number;
+  isInEditingRoute?: boolean;
+  editOrder?: number;
+  hasVideos?: boolean;
+  videoCount?: number;
 }
 
-export const MarkerIcon: React.FC<MarkerIconProps> = ({
-  marker,
-  isHovered,
-  isConnected,
-  connectOrder,
-  isInEditingRoute,
-  editOrder,
-}) => {
-  const hasVideos = marker.videos && marker.videos.length > 0;
-
-  // 더 생동감 있는 색상 팔레트
-  let fillColor = '#E53E3E'; // 생생한 빨간색
-  let strokeColor = '#C53030';
-  let innerColor = '#FED7D7';
-  let centerColor = '#E53E3E';
-
-  if (isConnected) {
-    fillColor = '#38A169'; // 생생한 초록색
-    strokeColor = '#2F855A';
-    innerColor = '#C6F6D5';
-    centerColor = '#38A169';
-  }
-  if (isInEditingRoute) {
-    fillColor = '#D69E2E'; // 생생한 노란색
-    strokeColor = '#B7791F';
-    innerColor = '#FAF089';
-    centerColor = '#D69E2E';
-  }
-  if (hasVideos && !isConnected && !isInEditingRoute) {
-    fillColor = '#E53E3E';
-    strokeColor = '#C53030';
-    innerColor = '#FED7D7';
-    centerColor = '#E53E3E';
-  }
-
-  const size = isHovered ? 44 : 40;
-  const strokeWidth = isHovered ? 4 : 3;
-  const scale = isHovered ? 1.1 : 1;
-
-  return (
-    <svg
-      width={size}
-      height={size + 12}
-      viewBox="0 0 48 60"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ transform: `scale(${scale})`, transition: 'all 0.2s ease' }}
-    >
-      <defs>
-        <filter id="dropshadow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
-          <feOffset dx="2" dy="4" result="offset" />
-          <feFlood floodColor="#000000" floodOpacity="0.3" />
-          <feComposite in2="offset" operator="in" />
-          <feMerge>
-            <feMergeNode />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-        <radialGradient id="markerGradient" cx="30%" cy="20%">
-          <stop offset="0%" stopColor="white" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="black" stopOpacity="0.1" />
-        </radialGradient>
-        <linearGradient id="pinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={fillColor} />
-          <stop offset="50%" stopColor={strokeColor} />
-          <stop offset="100%" stopColor={fillColor} />
-        </linearGradient>
-        <linearGradient id="innerGradient" cx="50%" cy="50%">
-          <stop offset="0%" stopColor="white" />
-          <stop offset="100%" stopColor={innerColor} />
-        </linearGradient>
-      </defs>
-
-      {/* 외부 핀 모양 */}
-      <path
-        d="M24 8C17.4 8 12 13.4 12 20c0 11.25 12 28 12 28s12-16.75 12-28c0-6.6-5.4-12-12-12z"
-        fill="url(#pinGradient)"
-        stroke={strokeColor}
-        strokeWidth={strokeWidth}
-        filter="url(#dropshadow)"
-      />
-
-      {/* 하이라이트 효과 */}
-      <ellipse cx="20" cy="14" rx="5" ry="7" fill="url(#markerGradient)" />
-
-      {/* 내부 원들 */}
-      <circle
-        cx="24"
-        cy="20"
-        r="9"
-        fill="white"
-        stroke={strokeColor}
-        strokeWidth="1.5"
-      />
-      <circle cx="24" cy="20" r="7" fill="url(#innerGradient)" />
-      <circle cx="24" cy="20" r="5" fill={centerColor} />
-
-      {/* 중앙 하이라이트 (순서가 없을 때만) */}
-      {!isConnected && !isInEditingRoute && (
-        <>
-          <circle cx="22" cy="18" r="2" fill="white" opacity="0.7" />
-          <circle cx="21.5" cy="17.5" r="1" fill="white" opacity="0.9" />
-        </>
-      )}
-
-      {/* 마커 중심부에 연결 순서 표시 */}
-      {isConnected && connectOrder > 0 && (
+const MarkerIcon: React.FC<MarkerIconProps> = ({
+  size = 42,
+  fillColor = '#4FC3F7',
+  strokeColor = '#29B6F6',
+  strokeWidth = 2,
+  isConnected = false,
+  connectOrder = 0,
+  isInEditingRoute = false,
+  editOrder = 0,
+  hasVideos = false,
+  videoCount = 0,
+}) => (
+  <svg
+    width={size}
+    height={size + 8}
+    viewBox="0 0 32 40"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="1" dy="2" stdDeviation="1.5" floodOpacity="0.3" />
+      </filter>
+    </defs>
+    {/* 단순한 핀 모양 */}
+    <path
+      d="M16 4C11.6 4 8 7.6 8 12c0 6 8 20 8 20s8-14 8-20c0-4.4-3.6-8-8-8z"
+      fill={fillColor}
+      stroke="white"
+      strokeWidth={strokeWidth}
+      filter="url(#shadow)"
+    />
+    {/* 중앙 원 */}
+    <circle cx="16" cy="12" r="4" fill="white" />
+    <circle cx="16" cy="12" r="2.5" fill={strokeColor} />
+    {/* 연결 순서 */}
+    {isConnected && connectOrder > 0 && (
+      <>
+        <circle
+          cx="26"
+          cy="6"
+          r="5"
+          fill="#2ED573"
+          stroke="white"
+          strokeWidth={2}
+          filter="url(#shadow)"
+        />
         <text
-          x="24"
-          y="25"
+          x="26"
+          y="9"
           textAnchor="middle"
           fill="white"
-          fontSize="16"
+          fontSize={9}
           fontWeight="bold"
-          fontFamily="Arial, sans-serif"
-          stroke="#2F855A"
-          strokeWidth="0.5"
         >
           {connectOrder}
         </text>
-      )}
-
-      {/* 마커 중심부에 편집 중 순서 표시 */}
-      {isInEditingRoute && editOrder > 0 && (
+      </>
+    )}
+    {/* 편집 경로 순서 */}
+    {isInEditingRoute && editOrder > 0 && (
+      <>
+        <circle
+          cx="26"
+          cy="6"
+          r="5"
+          fill="#FFA726"
+          stroke="white"
+          strokeWidth={2}
+          filter="url(#shadow)"
+        />
         <text
-          x="24"
-          y="25"
+          x="26"
+          y="9"
           textAnchor="middle"
           fill="white"
-          fontSize="16"
+          fontSize={9}
           fontWeight="bold"
-          fontFamily="Arial, sans-serif"
-          stroke="#B7791F"
-          strokeWidth="0.5"
         >
           {editOrder}
         </text>
-      )}
-
-      {/* 비디오 개수 배지 */}
-      {hasVideos && !isConnected && !isInEditingRoute && (
-        <g>
-          <circle
-            cx="40"
-            cy="12"
-            r="9"
-            fill="#E53E3E"
-            stroke="white"
-            strokeWidth="3"
-            filter="url(#dropshadow)"
-          />
-          <circle cx="40" cy="12" r="7" fill="#F56565" />
-          <circle cx="40" cy="12" r="5" fill="#FC8181" />
-          <text
-            x="40"
-            y="15"
-            textAnchor="middle"
-            fill="white"
-            fontSize="14"
-            fontWeight="bold"
-            fontFamily="Arial, sans-serif"
-          >
-            🎥
-          </text>
-          <text
-            x="40"
-            y="21"
-            textAnchor="middle"
-            fill="white"
-            fontSize="14"
-            fontWeight="bold"
-            fontFamily="Arial, sans-serif"
-          >
-            {marker.videos.length}
-          </text>
-        </g>
-      )}
-
-      {/* 펄스 효과 (호버 시) */}
-      {isHovered && (
+      </>
+    )}
+    {/* 비디오 개수 */}
+    {hasVideos && !isConnected && !isInEditingRoute && (
+      <>
         <circle
-          cx="24"
-          cy="20"
-          r="15"
-          fill="none"
-          stroke={centerColor}
-          strokeWidth="2"
-          strokeOpacity="0.5"
-        >
-          <animate
-            attributeName="r"
-            values="15;20;15"
-            dur="1.5s"
-            repeatCount="indefinite"
-          />
-          <animate
-            attributeName="stroke-opacity"
-            values="0.5;0;0.5"
-            dur="1.5s"
-            repeatCount="indefinite"
-          />
-        </circle>
-      )}
-    </svg>
-  );
-};
+          cx="26"
+          cy="6"
+          r="5"
+          fill="#4FC3F7"
+          stroke="white"
+          strokeWidth={2}
+          filter="url(#shadow)"
+        />
+        <text x="26" y="9" textAnchor="middle" fill="white" fontSize={7}>
+          {videoCount}
+        </text>
+      </>
+    )}
+  </svg>
+);
+
+export default MarkerIcon;

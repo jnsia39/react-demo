@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import GoogleMapComponent from '../components/GoogleMap/GoogleMapComponent';
 import VideoListComponent from '../components/VideoList/VideoListComponent';
+import RouteTrackingMap from '../components/GoogleMap/RouteTrackingMap';
 
 export default function Home() {
   const [isDraggingVideo, setIsDraggingVideo] = useState(false);
@@ -56,7 +56,7 @@ export default function Home() {
           }}
         >
           <div style={{ flex: 1, position: 'relative' }}>
-            <GoogleMapComponent isDraggingVideo={isDraggingVideo} />
+            <RouteTrackingMap isDraggingVideo={isDraggingVideo} />
           </div>
         </div>
       </div>
