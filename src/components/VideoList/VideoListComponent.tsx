@@ -22,7 +22,6 @@ export default function VideoListComponent({
 }: VideoListComponentProps) {
   const [videos, setVideos] = useState<VideoFile[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<VideoFile | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isLoadingDefault, setIsLoadingDefault] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoPlayerRef = useRef<HTMLVideoElement>(null);
@@ -212,7 +211,6 @@ export default function VideoListComponent({
       setVideos((prev) => prev.filter((video) => video.id !== id));
       if (selectedVideo?.id === id) {
         setSelectedVideo(null);
-        setIsPlaying(false);
       }
     },
     [selectedVideo]
@@ -221,7 +219,6 @@ export default function VideoListComponent({
   const handleVideoClick = useCallback(
     (video: VideoFile) => {
       setSelectedVideo(video);
-      setIsPlaying(false);
       onVideoSelect?.(video);
 
       setTimeout(() => {
@@ -530,9 +527,6 @@ export default function VideoListComponent({
                 borderRadius: '4px',
               }}
               controls
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onEnded={() => setIsPlaying(false)}
             />
           </div>
         </div>
