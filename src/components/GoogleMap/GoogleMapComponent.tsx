@@ -175,6 +175,7 @@ export default function GoogleMapComponent({
   const startMemoEdit = () => {
     setIsEditingMemo(true);
   };
+
   const deleteMarker = (id: string) => {
     setMarkers((prev) => prev.filter((marker) => marker.id !== id));
     setSelectedMarker(null);
@@ -506,13 +507,12 @@ export default function GoogleMapComponent({
                     backgroundColor: '#fffbeb',
                     borderRadius: '6px',
                     marginBottom: '10px',
-                    border: '2px solid #fbbf24',
+                    border: '1px solid #fbbf24',
                   }}
                 >
                   <div
                     style={{
                       fontWeight: 'bold',
-                      marginBottom: '6px',
                       color: '#374151',
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -521,9 +521,19 @@ export default function GoogleMapComponent({
                   >
                     <span>📝 메모</span>
                     {!isEditingMemo && (
-                      <span style={{ fontSize: '11px', color: '#6b7280' }}>
-                        (클릭하여 편집)
-                      </span>
+                      <button
+                        style={{
+                          padding: '5px 10px',
+                          backgroundColor: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '3px',
+                          cursor: 'pointer',
+                        }}
+                        onClick={startMemoEdit}
+                      >
+                        편집
+                      </button>
                     )}
                   </div>
                   {isEditingMemo ? (
@@ -586,12 +596,8 @@ export default function GoogleMapComponent({
                     </>
                   ) : (
                     <div
-                      onClick={() => startMemoEdit()}
                       style={{
-                        minHeight: '40px',
                         padding: '8px',
-                        backgroundColor: 'white',
-                        border: '1px solid #d1d5db',
                         borderRadius: '4px',
                         fontSize: '14px',
                         color: selectedMarker.memo ? '#111827' : '#9ca3af',
@@ -601,7 +607,7 @@ export default function GoogleMapComponent({
                       }}
                       title="클릭하여 편집"
                     >
-                      {selectedMarker.memo || '클릭하여 메모를 추가하세요...'}
+                      {selectedMarker.memo}
                     </div>
                   )}
                 </div>
