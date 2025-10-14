@@ -1,9 +1,11 @@
+import React, { useState } from 'react';
 import {
   GoogleMap,
   LoadScript,
   Marker,
   InfoWindow,
   OverlayView,
+  StandaloneSearchBox,
 } from '@react-google-maps/api';
 import MapControls from './components/MapControls';
 import { MarkerData } from './types';
@@ -31,6 +33,11 @@ interface RouteTrackingMapProps {
 export default function RouteTrackingMap({
   isDraggingVideo = false,
 }: RouteTrackingMapProps) {
+  const [searchBox, setSearchBox] =
+    useState<google.maps.places.SearchBox | null>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+
   const {
     markers,
     selectedMarker,
@@ -117,6 +124,23 @@ export default function RouteTrackingMap({
     deleteMarkerFromRoutes(id);
   };
 
+  const onSearchBoxLoad = (ref: google.maps.places.SearchBox) => {
+    setSearchBox(ref);
+  };
+
+  const onPlacesChanged = () => {
+    if (searchBox) {
+      const places = searchBox.getPlaces();
+      if (places && places.length > 0) {
+        const place = places[0];
+        if (place.geometry?.location && map) {
+          map.panTo(place.geometry.location);
+          map.setZoom(17);
+        }
+      }
+    }
+  };
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <div
@@ -147,9 +171,7 @@ export default function RouteTrackingMap({
         />
       </div>
 
-      <LoadScript
-        googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}
-      >
+      <LoadScript googleMapsApiKey={apiKey} libraries={['places']}>
         <GoogleMap
           mapContainerStyle={{
             width: '100%',
@@ -158,6 +180,7 @@ export default function RouteTrackingMap({
           center={center}
           zoom={17}
           onClick={handleMapClick}
+          onLoad={(map) => setMap(map)}
           options={{
             zoomControl: true,
             clickableIcons: false,
@@ -165,6 +188,30 @@ export default function RouteTrackingMap({
             draggingCursor: 'grabbing',
           }}
         >
+          <StandaloneSearchBox
+            onLoad={onSearchBoxLoad}
+            onPlacesChanged={onPlacesChanged}
+          >
+            <input
+              type="text"
+              placeholder="장소 검색..."
+              style={{
+                boxSizing: 'border-box',
+                border: '1px solid transparent',
+                width: '300px',
+                height: '40px',
+                padding: '0 12px',
+                borderRadius: '8px',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
+                fontSize: '14px',
+                outline: 'none',
+                textOverflow: 'ellipsis',
+                position: 'absolute',
+                right: '60px',
+                top: '10px',
+              }}
+            />
+          </StandaloneSearchBox>
           {markers.map((marker) => (
             <div key={marker.id}>
               <Marker
