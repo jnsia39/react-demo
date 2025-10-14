@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   GoogleMap,
   LoadScript,
-  Marker,
   InfoWindow,
   OverlayView,
   StandaloneSearchBox,
+  Polyline,
+  Libraries,
+  Marker,
 } from '@react-google-maps/api';
 import MapControls from './components/MapControls';
 import { MarkerData } from './types';
@@ -16,10 +18,14 @@ import { extractVideoMetadata } from '@shared/utils/video';
 import useRoutes from './hooks/useRoutes';
 import useMarkerDragDrop from './hooks/useMarkerDragDrop';
 import useMarkerHover from './hooks/useMarkerHover';
+import useUserLocation from './hooks/useUserLocation';
 import RouteList from './components/RouteList';
 import RoutePolylines from './components/RoutePolylines';
 import * as overlayStyles from './styles/MarkerOverlay.css';
+import * as styles from './styles/RouteTrackingMap.css';
 import clsx from 'clsx';
+import useDrawLines from './hooks/useDrawLines';
+import { convertPixelToLatLng } from './utils/coordinateConverter';
 
 const center = {
   lat: 37.402,
@@ -30,13 +36,16 @@ interface RouteTrackingMapProps {
   isDraggingVideo?: boolean;
 }
 
+const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+
+const libraries: Libraries = ['places'];
+
 export default function RouteTrackingMap({
   isDraggingVideo = false,
 }: RouteTrackingMapProps) {
-  const [searchBox, setSearchBox] =
-    useState<google.maps.places.SearchBox | null>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const [previewMarkerPosition, setPreviewMarkerPosition] =
+    useState<google.maps.LatLngLiteral | null>(null);
 
   const {
     markers,
@@ -47,6 +56,8 @@ export default function RouteTrackingMap({
     addVideoToMarker,
     removeVideoFromMarker,
   } = useMarkers();
+
+  const { userLocation } = useUserLocation();
 
   const { hoveredMarkerId, onHandleMarkerMouseOver, onHandleMarkerMouseLeave } =
     useMarkerHover();
@@ -75,19 +86,28 @@ export default function RouteTrackingMap({
     onMarkerDrop,
   } = useMarkerDragDrop();
 
+  const {
+    isDrawingMode,
+    currentDrawing,
+    drawnLines,
+    toggleDrawingMode,
+    onDrawMouseDown,
+    onDrawMouseMove,
+    onDrawMouseUp,
+    onDrawRightClick,
+  } = useDrawLines();
+
   const handleMapClick = async (e: google.maps.MapMouseEvent) => {
     if (selectedMarker) {
       selectMarker(null);
       return;
     }
 
-    if (e.latLng && !isTrackingMode) {
-      const position = {
+    if (e.latLng && !isTrackingMode && !isDrawingMode) {
+      createMarker({
         lat: e.latLng.lat(),
         lng: e.latLng.lng(),
-      };
-
-      createMarker(position);
+      });
     }
   };
 
@@ -95,12 +115,12 @@ export default function RouteTrackingMap({
     if (isTrackingMode) {
       toggleMarkerWhileTracking(marker.id);
     } else {
-      selectMarker(marker);
+      if (selectedMarker?.id === marker.id) {
+        selectMarker(null);
+      } else {
+        selectMarker(marker);
+      }
     }
-  };
-
-  const handleInfoWindowClose = () => {
-    selectMarker(null);
   };
 
   const handleDropVideo = (e: React.DragEvent, markerId: string) => {
@@ -124,40 +144,64 @@ export default function RouteTrackingMap({
     deleteMarkerFromRoutes(id);
   };
 
-  const onSearchBoxLoad = (ref: google.maps.places.SearchBox) => {
-    setSearchBox(ref);
-  };
+  const handleMapDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
 
-  const onPlacesChanged = () => {
-    if (searchBox) {
-      const places = searchBox.getPlaces();
-      if (places && places.length > 0) {
-        const place = places[0];
-        if (place.geometry?.location && map) {
-          map.panTo(place.geometry.location);
-          map.setZoom(17);
-        }
-      }
-    }
+      const videoMetadata = extractVideoMetadata(e.dataTransfer);
+      if (!videoMetadata || !mapRef.current) return;
+
+      const position = convertPixelToLatLng(
+        mapRef.current,
+        e.clientX,
+        e.clientY
+      );
+      if (!position) return;
+
+      createMarker(position, videoMetadata);
+
+      setPreviewMarkerPosition(null);
+    },
+    [createMarker]
+  );
+
+  const handleMapDragOver = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+
+      if (!isDraggingVideo || !mapRef.current) return;
+
+      // 픽셀 좌표를 위경도로 변환
+      const position = convertPixelToLatLng(
+        mapRef.current,
+        e.clientX,
+        e.clientY
+      );
+      if (!position) return;
+
+      setPreviewMarkerPosition(position);
+    },
+    [isDraggingVideo]
+  );
+
+  const handleMapDragLeave = () => {
+    setPreviewMarkerPosition(null);
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <div
-        style={{
-          position: 'absolute',
-          top: '16px',
-          left: '16px',
-          zIndex: 1000,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
-        }}
-      >
+    <div
+      className={styles.container}
+      onDrop={handleMapDrop}
+      onDragOver={handleMapDragOver}
+      onDragLeave={handleMapDragLeave}
+    >
+      <div className={styles.controlsContainer}>
         <MapControls
           isTrackingMode={isTrackingMode}
+          isDrawingMode={isDrawingMode}
           connectedMarkersCount={connectedMarkers.length}
           onToggleTrackingMode={toggleTrackingMode}
+          onToggleDrawingMode={toggleDrawingMode}
           onCreateRoute={createRoute}
           onCancelConnection={cancelConnection}
         />
@@ -171,47 +215,53 @@ export default function RouteTrackingMap({
         />
       </div>
 
-      <LoadScript googleMapsApiKey={apiKey} libraries={['places']}>
+      <LoadScript googleMapsApiKey={apiKey} libraries={libraries}>
         <GoogleMap
-          mapContainerStyle={{
-            width: '100%',
-            height: '100%',
-          }}
-          center={center}
+          mapContainerClassName={styles.mapContainer}
+          center={userLocation || center}
           zoom={17}
           onClick={handleMapClick}
-          onLoad={(map) => setMap(map)}
+          onRightClick={onDrawRightClick}
+          onMouseDown={onDrawMouseDown}
+          onMouseMove={onDrawMouseMove}
+          onMouseUp={onDrawMouseUp}
+          onLoad={(map) => {
+            mapRef.current = map;
+          }}
           options={{
             zoomControl: true,
             clickableIcons: false,
-            draggableCursor: isTrackingMode ? 'default' : 'crosshair',
+            draggableCursor: isDrawingMode
+              ? 'crosshair'
+              : isTrackingMode
+              ? 'default'
+              : 'crosshair',
             draggingCursor: 'grabbing',
+            gestureHandling: isDrawingMode ? 'none' : 'greedy',
           }}
         >
-          <StandaloneSearchBox
-            onLoad={onSearchBoxLoad}
-            onPlacesChanged={onPlacesChanged}
-          >
+          <StandaloneSearchBox>
             <input
               type="text"
               placeholder="장소 검색..."
-              style={{
-                boxSizing: 'border-box',
-                border: '1px solid transparent',
-                width: '300px',
-                height: '40px',
-                padding: '0 12px',
-                borderRadius: '8px',
-                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
-                fontSize: '14px',
-                outline: 'none',
-                textOverflow: 'ellipsis',
-                position: 'absolute',
-                right: '60px',
-                top: '10px',
-              }}
+              className={styles.searchBox}
             />
           </StandaloneSearchBox>
+
+          {previewMarkerPosition && isDraggingVideo && (
+            <Marker
+              position={previewMarkerPosition}
+              icon={{
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 10,
+                fillColor: '#4285F4',
+                strokeColor: '#4285F4',
+                strokeWeight: 2,
+              }}
+              zIndex={9999}
+            />
+          )}
+
           {markers.map((marker) => (
             <div key={marker.id}>
               <Marker
@@ -219,6 +269,7 @@ export default function RouteTrackingMap({
                 onClick={() => handleMarkerClick(marker)}
                 onMouseOver={() => onHandleMarkerMouseOver(marker.id)}
                 onMouseOut={onHandleMarkerMouseLeave}
+                onRightClick={() => handleDeleteMarker(marker.id)}
                 zIndex={hoveredMarkerId === marker.id ? 1000 : 100}
                 icon={getIcon(marker)}
               />
@@ -252,7 +303,7 @@ export default function RouteTrackingMap({
           {selectedMarker && (
             <InfoWindow
               position={selectedMarker.position}
-              onCloseClick={handleInfoWindowClose}
+              onCloseClick={() => selectMarker(null)}
               options={{
                 pixelOffset: new google.maps.Size(0, -50),
                 headerDisabled: true,
@@ -274,6 +325,31 @@ export default function RouteTrackingMap({
             connectedMarkers={connectedMarkers}
             isTrackingMode={isTrackingMode}
           />
+
+          {drawnLines.map((line) => (
+            <Polyline
+              key={line.id}
+              path={line.path}
+              options={{
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 3,
+                clickable: false,
+              }}
+            />
+          ))}
+
+          {currentDrawing.length > 0 && (
+            <Polyline
+              path={currentDrawing}
+              options={{
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.6,
+                strokeWeight: 3,
+                clickable: false,
+              }}
+            />
+          )}
         </GoogleMap>
       </LoadScript>
     </div>

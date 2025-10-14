@@ -3,16 +3,20 @@ import clsx from 'clsx';
 
 interface MapControlsProps {
   isTrackingMode: boolean;
+  isDrawingMode: boolean;
   connectedMarkersCount: number;
   onToggleTrackingMode: () => void;
+  onToggleDrawingMode: () => void;
   onCreateRoute: () => void;
   onCancelConnection: () => void;
 }
 
 export default function MapControls({
   isTrackingMode,
+  isDrawingMode,
   connectedMarkersCount,
   onToggleTrackingMode,
+  onToggleDrawingMode,
   onCreateRoute,
   onCancelConnection,
 }: MapControlsProps) {
@@ -25,7 +29,19 @@ export default function MapControls({
           isTrackingMode ? styles.trackingOn : styles.trackingOff
         )}
       >
-        추적 모드 {isTrackingMode ? 'ON' : 'OFF'}
+        추적 모드 {isTrackingMode ? 'ON' : 'OFF'} (Ctrl)
+      </button>
+
+      <button
+        onClick={onToggleDrawingMode}
+        className={clsx(
+          styles.buttonBase,
+          isDrawingMode ? styles.trackingOn : styles.trackingOff
+        )}
+      >
+        그리기 모드 {isDrawingMode ? 'ON' : 'OFF'} (Shift)
+        <br />
+        (우클릭 시 전체 초기화)
       </button>
 
       {connectedMarkersCount > 1 && (

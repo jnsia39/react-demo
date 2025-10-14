@@ -6,14 +6,18 @@ export default function useMarkers() {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null);
 
-  const createMarker = (position: google.maps.LatLngLiteral) => {
+  const createMarker = (
+    position: google.maps.LatLngLiteral,
+    initialVideo?: VideoMetadata
+  ) => {
     const newMarker: MarkerData = {
       id: Date.now().toString(),
       position,
-      videos: [],
+      videos: initialVideo ? [initialVideo] : [],
     };
 
     setMarkers((prev) => [...prev, newMarker]);
+    return newMarker.id;
   };
 
   const deleteMarker = (id: string) => {
@@ -26,43 +30,47 @@ export default function useMarkers() {
   };
 
   const addVideoToMarker = (markerId: string, newVideo: VideoMetadata) => {
-    const targetMarker = markers.find((marker) => marker.id === markerId);
-    if (!targetMarker) return;
+    setMarkers((prev) =>
+      prev.map((marker) => {
+        if (marker.id !== markerId) return marker;
 
-    const existingVideo = targetMarker.videos.find(
-      (video) => video.id === newVideo.id
+        const hasVideo = marker.videos.some(
+          (video) => video.id === newVideo.id
+        );
+        if (hasVideo) return marker;
+
+        return { ...marker, videos: [...marker.videos, newVideo] };
+      })
     );
-    if (!existingVideo) {
-      targetMarker.videos.push(newVideo);
-    }
-
-    setMarkers((prev) => {
-      return prev.map((marker) =>
-        marker.id === markerId ? targetMarker : marker
-      );
-    });
 
     if (selectedMarker?.id === markerId) {
-      setSelectedMarker(selectedMarker);
+      const hasVideo = selectedMarker.videos.some((v) => v.id === newVideo.id);
+      if (!hasVideo) {
+        setSelectedMarker({
+          ...selectedMarker,
+          videos: [...selectedMarker.videos, newVideo],
+        });
+      }
     }
   };
 
   const removeVideoFromMarker = (markerId: string, videoId: string) => {
-    const targetMarker = markers.find((marker) => marker.id === markerId);
-    if (!targetMarker) return;
+    setMarkers((prev) =>
+      prev.map((marker) => {
+        if (marker.id !== markerId) return marker;
 
-    targetMarker.videos = targetMarker.videos.filter(
-      (video) => video.id !== videoId
+        return {
+          ...marker,
+          videos: marker.videos.filter((video) => video.id !== videoId),
+        };
+      })
     );
 
-    setMarkers((prev) => {
-      return prev.map((marker) =>
-        marker.id === markerId ? targetMarker : marker
-      );
-    });
-
     if (selectedMarker?.id === markerId) {
-      setSelectedMarker(selectedMarker);
+      setSelectedMarker({
+        ...selectedMarker,
+        videos: selectedMarker.videos.filter((video) => video.id !== videoId),
+      });
     }
   };
 

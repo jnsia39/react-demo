@@ -14,6 +14,7 @@ export default function useRoutes() {
 
   // 경로 편집 시작
   const startEditRoute = (index: number) => {
+    setIsTrackingMode(true);
     setEditingRouteIndex(index);
     setEditingRoute([...markerRoutes[index]]);
     setConnectedMarkers([]);
@@ -100,9 +101,34 @@ export default function useRoutes() {
 
   useEffect(() => {
     if (!isTrackingMode) {
+      createRoute();
       setConnectedMarkers([]);
     }
+
+    console.log(isTrackingMode);
   }, [isTrackingMode]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Control') {
+        setIsTrackingMode(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Control') {
+        setIsTrackingMode(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   return {
     isTrackingMode,

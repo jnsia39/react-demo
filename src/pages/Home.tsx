@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import VideoListComponent from '../components/VideoList/VideoListComponent';
+import VideoList from '../components/VideoList/VideoList';
 import RouteTrackingMap from '../components/GoogleMap/RouteTrackingMap';
 
 export default function Home() {
@@ -41,7 +41,7 @@ export default function Home() {
             overflow: 'hidden',
           }}
         >
-          <VideoListComponent
+          <VideoList
             onDragStart={() => setIsDraggingVideo(true)}
             onDragEnd={() => setIsDraggingVideo(false)}
           />
