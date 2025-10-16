@@ -40,8 +40,6 @@ export default function MapControls({
         )}
       >
         그리기 모드 {isDrawingMode ? 'ON' : 'OFF'} (Shift)
-        <br />
-        (우클릭 시 전체 초기화)
       </button>
 
       {connectedMarkersCount > 1 && (

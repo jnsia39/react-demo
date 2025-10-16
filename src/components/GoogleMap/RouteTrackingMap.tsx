@@ -10,6 +10,7 @@ import {
   Marker,
 } from '@react-google-maps/api';
 import MapControls from './components/MapControls';
+import HelpPanel from './components/HelpPanel';
 import { MarkerData } from './types';
 import { createMarkerIcon } from './utils/markerIconHelper';
 import MarkerDetails from './components/MarkerDetails';
@@ -351,6 +352,9 @@ export default function RouteTrackingMap({
             />
           )}
         </GoogleMap>
+
+        {/* 도움말 패널 */}
+        <HelpPanel />
       </LoadScript>
     </div>
   );
